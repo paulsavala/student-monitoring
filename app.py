@@ -26,7 +26,9 @@ def bootstrap():
             CREATE TABLE IF NOT EXISTS courses (
                 id INTEGER PRIMARY KEY,
                 department TEXT NOT NULL,
-                number INTEGER NOT NULL
+                number INTEGER NOT NULL,
+                section INTEGER,
+                canvas_id INTEGER
             );
             '''
     db.run_query(CREATE_INSTRUCTOR_TABLE, cursor)
@@ -34,14 +36,17 @@ def bootstrap():
 
     CREATE_INITIAL_INSTRUCTOR = '''
         INSERT INTO instructors (first_name, last_name, email, department, api_token) 
-        VALUES ('Paul', 'Savala', 'psavala@stedwards.edu', 'MATH', '3286~8dlESHq3nIk4XSxU43srFlqhCJbQFxHD1rwFYhx6mo2A1oXB7INfi94csvP4NuWX');
+        SELECT 'Paul', 'Savala', 'psavala@stedwards.edu', 'MATH', '3286~8dlESHq3nIk4XSxU43srFlqhCJbQFxHD1rwFYhx6mo2A1oXB7INfi94csvP4NuWX'
+        WHERE NOT EXISTS (SELECT 1 FROM instructors WHERE email = 'psavala@stedwards.edu');
     '''
     CREATE_INITIAL_COURSE = '''
-        INSERT INTO courses (department, number) 
-        VALUES ('MATH', 3320);
+        INSERT INTO courses (department, number, section, canvas_id) 
+        SELECT 'MATH', 3320, 2, 201832
+        WHERE NOT EXISTS (SELECT 1 FROM courses WHERE canvas_id = 201832);
     '''
     db.run_query(CREATE_INITIAL_INSTRUCTOR, cursor)
     db.run_query(CREATE_INITIAL_COURSE, cursor)
+
     conn.commit()
 
     return conn, cursor
