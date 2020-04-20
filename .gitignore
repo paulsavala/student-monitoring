@@ -3,3 +3,4 @@
 notebooks
 *.db
 venv
+.ipynb_checkpoints
