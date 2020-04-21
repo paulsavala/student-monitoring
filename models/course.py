@@ -9,3 +9,9 @@ class Course(GenericModel):
 
     def get_students(self):
         raise NotImplementedError
+
+    def create_summary(self):
+        raise NotImplementedError
+
+    def create_email(self):
+        raise NotImplementedError

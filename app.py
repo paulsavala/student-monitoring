@@ -2,6 +2,8 @@ from config import Config
 from utils import db
 import os
 
+from models.instructor import Instructor
+
 
 def bootstrap():
     if not os.path.exists(Config.db_file):
@@ -55,25 +57,44 @@ def bootstrap():
 if __name__ == '__main__':
     # Bootstrap if needed and get the connection and a cursor
     conn, cursor = bootstrap()
-    api_token = '3286~8dlESHq3nIk4XSxU43srFlqhCJbQFxHD1rwFYhx6mo2A1oXB7INfi94csvP4NuWX'
     api_url = 'https://stedwards.instructure.com/'
-    lms = Config.lms(api_token, api_url)
 
-    # Fetch the instructor's courses
 
-    # Fetch the students in each course
+    # Get the instructor
+    INSTRUCTORS = '''SELECT * FROM instructors;'''
+    instructors = db.run_query(INSTRUCTORS, cursor)
+    for i in instructors:
+        # Connect to the instructors Canvas account
+        api_token = i['api_token']
+        lms = Config.lms(api_token, api_url)
+        instructor = Instructor(i['first_name'], i['last_name'], i['email'], lms)
 
-    # Fetch the grades for those students
+        # Fetch the instructor's courses
+        courses = instructor.get_courses()
 
-    # Create CI's for each student
+        for c in courses:
+            # Fetch the students in each course
+            students = c.get_students()
 
-    # Look for new good/bad results
+            for s in students:
+                # Fetch the grades for those students
+                grades = s.get_grades(c)
 
-    # Create student summary
+                # Create CI's for each student
+                grades.form_ci()
 
-    # (Optional) Create class summary
+                # Look for new good/bad results
+                grades.identify_outliers()
 
-    # Craft email
+                # Create student summary
+                s.set_grades(grades)
+                s.create_summary()
 
-    # Send the email
-    pass
+            # (Optional) Create class summary
+            c.create_summary()
+
+            # Craft email
+            c.create_email()
+
+        # Send email
+        pass

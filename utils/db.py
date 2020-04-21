@@ -1,8 +1,16 @@
 import sqlite3
 
 
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 def create_connection(db):
     conn = None
+    conn.row_factory = dict_factory
     try:
         conn = sqlite3.connect(db)
     except sqlite3.Error as e:
@@ -22,4 +30,4 @@ def create_cursor(conn):
 
 def run_query(query, cursor):
     cursor.execute(query)
-    return cursor
+    return cursor.fetchall()
