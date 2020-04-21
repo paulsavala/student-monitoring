@@ -1,14 +1,11 @@
+from models.generic import GenericModel
 
 
-class Student:
-    def __init__(self, name, courses):
+class Student(GenericModel):
+    def __init__(self, name, student_id):
+        super().__init__()
         self.name = name
-        self.courses = courses
+        self.student_id = student_id
 
-    def get_course(self, course_name, course_number):
-        course = None
-        for course in self.courses:
-            if course.name == course_name and course.number == course_number:
-                return course
-        if course is None:
-            raise AttributeError(f'Student is not enrolled in {course_name} {course_number}')
+    def get_grades(self, course):
+        raise NotImplementedError

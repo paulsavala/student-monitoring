@@ -55,6 +55,9 @@ def bootstrap():
 if __name__ == '__main__':
     # Bootstrap if needed and get the connection and a cursor
     conn, cursor = bootstrap()
+    api_token = '3286~8dlESHq3nIk4XSxU43srFlqhCJbQFxHD1rwFYhx6mo2A1oXB7INfi94csvP4NuWX'
+    api_url = 'https://stedwards.instructure.com/'
+    lms = Config.lms(api_token, api_url)
 
     # Fetch the instructor's courses
 
