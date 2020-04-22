@@ -1,4 +1,4 @@
-from config import Config
+from config import StEdwardsConfig
 from utils import db
 import os
 
@@ -6,12 +6,12 @@ from models.instructor import Instructor
 
 
 def bootstrap():
-    if not os.path.exists(Config.db_file):
+    if not os.path.exists(StEdwardsConfig.db_file):
         # Create an empty db file
-        with open(Config.db_file, 'w') as f:
+        with open(StEdwardsConfig.db_file, 'w') as f:
             pass
 
-    conn = db.create_connection(Config.db_file)
+    conn = db.create_connection(StEdwardsConfig.db_file)
     cursor = db.create_cursor(conn)
 
     CREATE_INSTRUCTOR_TABLE = '''
@@ -59,15 +59,14 @@ if __name__ == '__main__':
     conn, cursor = bootstrap()
     api_url = 'https://stedwards.instructure.com/'
 
-
     # Get the instructor
     INSTRUCTORS = '''SELECT * FROM instructors;'''
     instructors = db.run_query(INSTRUCTORS, cursor)
     for i in instructors:
         # Connect to the instructors Canvas account
         api_token = i['api_token']
-        lms = Config.lms(api_token, api_url)
-        instructor = Instructor(i['first_name'], i['last_name'], i['email'], lms)
+        lms = StEdwardsConfig.lms(api_token, api_url)
+        instructor = Instructor(i['first_name'], i['last_name'], i['email'])
 
         # Fetch the instructor's courses
         courses = instructor.get_courses()

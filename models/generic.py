@@ -1,6 +1,6 @@
-from config import Config
+from config import StEdwardsConfig
 
 
 class GenericModel:
     def __init__(self):
-        self.lms = Config.lms
+        self.lms = StEdwardsConfig.lms

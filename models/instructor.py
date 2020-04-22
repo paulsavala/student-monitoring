@@ -1,14 +1,12 @@
 from models. generic import GenericModel
-from models.course import Course
 
 
 class Instructor(GenericModel):
-    def __init__(self, first_name, last_name, email, lms):
+    def __init__(self, name, email, lms_id):
         super().__init__()
-        self.first_name = first_name
-        self.last_name = last_name
+        self.name = name
         self.email = email
-        self.lms = lms
+        self.lms_id = lms_id
 
         self.courses = None
 
@@ -17,3 +15,4 @@ class Instructor(GenericModel):
             return self.courses
         else:
             self.courses = self.lms.get_courses(self)
+            return self.courses
