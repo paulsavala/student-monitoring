@@ -17,17 +17,16 @@ def bootstrap():
     CREATE_INSTRUCTOR_TABLE = '''
         CREATE TABLE IF NOT EXISTS instructors (
             id INTEGER PRIMARY KEY,
-            first_name TEXT NOT NULL,
-            last_name TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE,
-            department TEXT NOT NULL,
-            api_token TEXT NOT NULL
+            name VARCHAR(128) NOT NULL,
+            email VARCHAR(128) NOT NULL UNIQUE,
+            department VARCHAR(128) NOT NULL,
+            api_token VARCHAR(128) NOT NULL
         );
         '''
     CREATE_COURSE_TABLE = '''
             CREATE TABLE IF NOT EXISTS courses (
                 id INTEGER PRIMARY KEY,
-                department TEXT NOT NULL,
+                department VARCHAR(128) NOT NULL,
                 number INTEGER NOT NULL,
                 section INTEGER,
                 canvas_id INTEGER
@@ -37,8 +36,8 @@ def bootstrap():
     db.run_query(CREATE_COURSE_TABLE, cursor)
 
     CREATE_INITIAL_INSTRUCTOR = '''
-        INSERT INTO instructors (first_name, last_name, email, department, api_token) 
-        SELECT 'Paul', 'Savala', 'psavala@stedwards.edu', 'MATH', '3286~8dlESHq3nIk4XSxU43srFlqhCJbQFxHD1rwFYhx6mo2A1oXB7INfi94csvP4NuWX'
+        INSERT INTO instructors (name, email, department, api_token) 
+        SELECT 'Paul Savala', 'psavala@stedwards.edu', 'MATH', '3286~8dlESHq3nIk4XSxU43srFlqhCJbQFxHD1rwFYhx6mo2A1oXB7INfi94csvP4NuWX'
         WHERE NOT EXISTS (SELECT 1 FROM instructors WHERE email = 'psavala@stedwards.edu');
     '''
     CREATE_INITIAL_COURSE = '''
@@ -57,7 +56,7 @@ def bootstrap():
 if __name__ == '__main__':
     # Bootstrap if needed and get the connection and a cursor
     conn, cursor = bootstrap()
-    api_url = 'https://stedwards.instructure.com/'
+    api_url = StEdwardsConfig.api_url
 
     # Get the instructor
     INSTRUCTORS = '''SELECT * FROM instructors;'''
@@ -65,8 +64,8 @@ if __name__ == '__main__':
     for i in instructors:
         # Connect to the instructors Canvas account
         api_token = i['api_token']
-        lms = StEdwardsConfig.lms(api_token, api_url)
-        instructor = Instructor(i['first_name'], i['last_name'], i['email'])
+        lms = StEdwardsConfig.load_lms(api_url, api_token)
+        instructor = lms.get_instructor()
 
         # Fetch the instructor's courses
         courses = instructor.get_courses()

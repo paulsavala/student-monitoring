@@ -15,7 +15,8 @@ class CanvasApi(GenericApi):
     def get_instructor(self):
         # Get Canvas user associated with this api key ('self' is a magic keyword to get the current user)
         instructor_obj = self.lms.get_user(user='self')
-        instructor = Instructor(name=instructor_obj.name, email=instructor_obj.email, lms_id=instructor_obj.id)
+        email = instructor_obj.get_profile()['primary_email']
+        instructor = Instructor(name=instructor_obj.name, email=email, lms_id=instructor_obj.id)
         return instructor
 
     def get_courses(self, instructor):

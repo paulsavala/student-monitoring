@@ -1,9 +1,9 @@
 
 
 class GenericApi:
-    def __init__(self, api_token=None, api_url=None):
-        self.api_token = api_token
+    def __init__(self, api_url=None, api_token=None):
         self.api_url = api_url
+        self.api_token = api_token
         self.lms = self._connect_to_lms()
 
     def _connect_to_lms(self):

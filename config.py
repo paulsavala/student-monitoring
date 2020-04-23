@@ -1,4 +1,3 @@
-from lms.canvas import CanvasApi
 
 
 class Config:
@@ -7,4 +6,10 @@ class Config:
 
 
 class StEdwardsConfig(Config):
-    lms = CanvasApi
+    api_url = 'https://stedwards.instructure.com/'
+
+    # Done to avoid circular import
+    @staticmethod
+    def load_lms(api_url, api_token):
+        from lms.canvas import CanvasApi
+        return CanvasApi(api_url, api_token)

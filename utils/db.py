@@ -10,9 +10,9 @@ def dict_factory(cursor, row):
 
 def create_connection(db):
     conn = None
-    conn.row_factory = dict_factory
     try:
         conn = sqlite3.connect(db)
+        conn.row_factory = dict_factory
     except sqlite3.Error as e:
         print(e)
         raise sqlite3.Error(f'Database {db} does not exist')
