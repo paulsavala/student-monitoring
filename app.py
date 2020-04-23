@@ -2,13 +2,11 @@ from config import StEdwardsConfig
 from utils import db
 import os
 
-from models.instructor import Instructor
-
 
 def bootstrap():
     if not os.path.exists(StEdwardsConfig.db_file):
         # Create an empty db file
-        with open(StEdwardsConfig.db_file, 'w') as f:
+        with open(StEdwardsConfig.db_file, 'w'):
             pass
 
     conn = db.create_connection(StEdwardsConfig.db_file)
@@ -65,18 +63,12 @@ if __name__ == '__main__':
         # Connect to the instructors Canvas account
         api_token = i['api_token']
         lms = StEdwardsConfig.load_lms(api_url, api_token)
-        instructor = lms.get_instructor()
+        instructor = lms.get_instructor(populate=True)
 
-        # Fetch the instructor's courses
-        courses = instructor.get_courses()
-
-        for c in courses:
-            # Fetch the students in each course
-            students = c.get_students()
-
-            for s in students:
+        for course in instructor.courses:
+            for student in course.students:
                 # Fetch the grades for those students
-                grades = s.get_grades(c)
+                grades = student.get_course_assignments(course)
 
                 # Create CI's for each student
                 grades.form_ci()
@@ -85,8 +77,7 @@ if __name__ == '__main__':
                 grades.identify_outliers()
 
                 # Create student summary
-                s.set_grades(grades)
-                s.create_summary()
+                student.create_summary()
 
             # (Optional) Create class summary
             c.create_summary()

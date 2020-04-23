@@ -1,14 +1,11 @@
-from models.generic import GenericModel
 
 
-class Course(GenericModel):
+class Course:
     def __init__(self, course_id, name):
-        super().__init__()
         self.course_id = course_id
         self.name = name
 
-    def get_students(self):
-        raise NotImplementedError
+        self.students = None
 
     def create_summary(self):
         raise NotImplementedError

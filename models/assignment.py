@@ -1,18 +1,15 @@
-from models.generic import GenericModel
 
 
-class Assignment(GenericModel):
+class Assignment:
     def __init__(self, student, assigment_name, due_date, score):
-        super().__init__()
         self.student = student
         self.assigment_name = assigment_name
         self.due_date = due_date
         self.score = score
 
 
-class AssignmentCollection(GenericModel):
+class AssignmentCollection:
     def __init__(self, student, course, assignments):
-        super().__init__()
         self.student = student
         self.course = course
         self.assignments = assignments
