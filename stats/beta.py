@@ -4,8 +4,8 @@ from scipy.stats import beta
 
 class BetaDistribution:
     def __init__(self, a=None, b=None):
-        self.a = self.a
-        self.b = self.b
+        self.a = a
+        self.b = b
 
     def fit(self, grades):
         mu = np.mean(grades)
@@ -15,19 +15,22 @@ class BetaDistribution:
         self.a = a
         self.b = b
 
-    def conf_int(self, grades, conf_level=0.05):
+    def conf_int(self, conf_level=0.05):
         assert self.a is not None and self.b is not None, 'Params have not been set. First run .fit()'
+        # Handles case where uses specifies something like 95% CI
         if conf_level > 0.5:
             conf_level = 1 - conf_level
         left = beta.ppf(conf_level / 2, self.a, self.b)
         right = beta.ppf(1 - conf_level / 2, self.a, self.b)
 
-        left = np.round(left, 2)
-        right = np.round(right, 2)
+        # Used because the ppf will never return 1, only 0.9999...
+        left = np.round(left, 1)
+        right = np.round(right, 1)
         if np.isnan(left):
             left = 0
         if np.isnan(right):
             right = 1
+
         return left, right
 
     def pdf(self, grades):

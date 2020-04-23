@@ -89,11 +89,15 @@ class CanvasApi(GenericApi):
         for a in graded_assignments:
             submissions = a.get_submissions()
             for s in submissions:
-                if not s.score:
-                    s.score = 0
                 # The test student is not included in the course students, but their submissions are still returned
                 if s.user_id not in students_by_id:
                     continue
+                # Make sure the assignment has actually been graded, so ungraded assignments aren't treated as zeros
+                if s.graded_at is None:
+                    continue
+                # Fill missing scores with a zero
+                if not s.score:
+                    s.score = 0
                 student_assignments[s.user_id].append(
                     Assignment(students_by_id[s.user_id],
                                a.name,

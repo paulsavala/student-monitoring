@@ -71,13 +71,13 @@ if __name__ == '__main__':
                 assignments = student.get_course_assignments(course)
 
                 # Create CI's for each student
-                assignments.form_ci(StEdwardsConfig.distribution)
+                left, right = assignments.form_ci(StEdwardsConfig.distribution)
 
                 # Look for new good/bad results
-                assignments.identify_outliers()
+                outlier_assignments = assignments.identify_outliers(left, right)
 
                 # Create student summary
-                student.create_summary()
+                student.create_summary(outlier_assignments)
 
             # (Optional) Create class summary
             course.create_summary()

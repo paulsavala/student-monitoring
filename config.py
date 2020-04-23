@@ -10,6 +10,7 @@ class Config:
 class StEdwardsConfig(Config):
     api_url = 'https://stedwards.instructure.com/'
     distribution = BetaDistribution
+    datetime_format = '%Y-%m-%dT%H:%M:%SZ'
 
     # Done to avoid circular import
     @classmethod

@@ -23,6 +23,6 @@ class Student:
         assert self.assignment_collections is not None, 'Student has no grades'
         return self.assignment_map.get(course)
 
-    def create_summary(self):
+    def create_summary(self, outlier_assignments):
         assert self.assignment_collections is not None, 'Student has no grades to summarize'
         raise NotImplementedError
