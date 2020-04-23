@@ -7,3 +7,5 @@ class Instructor:
         self.lms_id = lms_id
         self.courses = courses
 
+    def send_email(self):
+        raise NotImplementedError

@@ -1,3 +1,4 @@
+from stats.beta import BetaDistribution
 
 
 class Config:
@@ -8,6 +9,7 @@ class Config:
 
 class StEdwardsConfig(Config):
     api_url = 'https://stedwards.instructure.com/'
+    distribution = BetaDistribution
 
     # Done to avoid circular import
     @classmethod

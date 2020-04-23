@@ -68,22 +68,22 @@ if __name__ == '__main__':
         for course in instructor.courses:
             for student in course.students:
                 # Fetch the grades for those students
-                grades = student.get_course_assignments(course)
+                assignments = student.get_course_assignments(course)
 
                 # Create CI's for each student
-                grades.form_ci()
+                assignments.form_ci(StEdwardsConfig.distribution)
 
                 # Look for new good/bad results
-                grades.identify_outliers()
+                assignments.identify_outliers()
 
                 # Create student summary
                 student.create_summary()
 
             # (Optional) Create class summary
-            c.create_summary()
+            course.create_summary()
 
             # Craft email
-            c.create_email()
+            course.create_email()
 
         # Send email
-        pass
+        instructor.send_email()
