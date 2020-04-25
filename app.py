@@ -2,6 +2,8 @@ from config import StEdwardsConfig
 from utils import db
 import os
 
+from jinja2 import Environment, PackageLoader, select_autoescape
+
 
 def bootstrap():
     if not os.path.exists(StEdwardsConfig.db_file):
@@ -50,6 +52,11 @@ def bootstrap():
 
     return conn, cursor
 
+def prep_jinja():
+    env = Environment(
+        loader=PackageLoader('yourapplication', 'templates'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
 
 if __name__ == '__main__':
     # Bootstrap if needed and get the connection and a cursor
@@ -65,7 +72,9 @@ if __name__ == '__main__':
         lms = StEdwardsConfig.load_lms(api_url, api_token)
         instructor = lms.get_instructor(populate=True)
 
+        instructor_outliers = []
         for course in instructor.courses:
+            course_outliers = []
             for student in course.students:
                 # Fetch the grades for those students
                 assignments = student.get_course_assignments(course)
@@ -77,13 +86,14 @@ if __name__ == '__main__':
                 outlier_assignments = assignments.identify_outliers(left, right)
 
                 # Create student summary
-                student.create_summary(outlier_assignments)
+                course_outliers.append(outlier_assignments)
 
             # (Optional) Create class summary
-            course.create_summary()
+            course_outliers = course.create_summary(outlier_assignments)
 
-            # Craft email
-            course.create_email()
+            # Craft (email) card for this course
+            course_card = course.create_email_card(course_outliers)
+            instructor_outliers.append(course_card)
 
         # Send email
-        instructor.send_email()
+        instructor.send_email(instructor_outliers)

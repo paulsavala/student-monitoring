@@ -1,0 +1,98 @@
+<div class="preview" style="display: none; max-height: 0px; overflow: hidden;">
+    Class update for XXXX                                                                               
+</div>
+<table valign="top" class="bg-light body" style="outline: 0; width: 100%; min-width: 100%; height: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; font-family: Helvetica, Arial, sans-serif; line-height: 24px; font-weight: normal; font-size: 16px; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: collapse; margin: 0; padding: 0; border: 0;" bgcolor="#f8f9fa">
+    <tbody>
+    <tr>
+        <td valign="top" style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; margin: 0;" align="left" bgcolor="#f8f9fa">
+
+
+            <table class="container" border="0" cellpadding="0" cellspacing="0" style="font-family: Helvetica, Arial, sans-serif; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: collapse; width: 100%;">
+                <tbody>
+                <tr>
+                    <td align="center" style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; margin: 0; padding: 0 16px;">
+                        <!--[if (gte mso 9)|(IE)]>
+                        <table align="center">
+                            <tbody>
+                            <tr>
+                                <td width="600">
+                        <![endif]-->
+                        <table align="center" border="0" cellpadding="0" cellspacing="0" style="font-family: Helvetica, Arial, sans-serif; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: collapse; width: 100%; max-width: 600px; margin: 0 auto;">
+                            <tbody>
+                            <tr>
+                                <td style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; margin: 0;" align="left">
+
+                                    <table class="s-4 w-100" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                        <tbody>
+                                        <tr>
+                                            <td height="24" style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 24px; width: 100%; height: 24px; margin: 0;" align="left">
+                                                 
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+
+                                    {% block header %}{% endblock %}
+
+                                    <table class="card " border="0" cellpadding="0" cellspacing="0" style="font-family: Helvetica, Arial, sans-serif; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: separate !important; border-radius: 4px; width: 100%; overflow: hidden; border: 1px solid #dee2e6;" bgcolor="#ffffff">
+                                        <tbody>
+                                        {% for class in instructor.classes %}
+                                        <tr>
+                                            <td style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; width: 100%; margin: 0;" align="left">
+                                                <div style="border-top-width: 5px; border-top-color: blue; border-top-style: solid;">
+
+                                                    {% block class_card %}{% endblock %}
+                                                    {% block class_summary %} {% endblock %}
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <table class="s-4 w-100" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                        <tbody>
+                                        <tr>
+                                            <td height="24" style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 24px; width: 100%; height: 24px; margin: 0;" align="left">
+                                                 
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    {% block footer %}{% endblock %}
+
+                                    <table class="s-4 w-100" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                        <tbody>
+                                        <tr>
+                                            <td height="24" style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 24px; width: 100%; height: 24px; margin: 0;" align="left">
+                                                 
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+
+
+
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!--[if (gte mso 9)|(IE)]>
+                        </td>
+                        </tr>
+                        </tbody>
+                        </table>
+                        <![endif]-->
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+
+
+        </td>
+    </tr>
+    </tbody>
+</table>

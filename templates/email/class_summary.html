@@ -1,0 +1,28 @@
+{% extends base.html %}
+
+{% block class_summary %}
+<table class="card-body" border="0" cellpadding="0" cellspacing="0" style="font-family: Helvetica, Arial, sans-serif; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: collapse; width: 100%;">
+    <tbody>
+    <tr>
+        <td style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; width: 100%; margin: 0; padding: 20px;" align="left">
+            <div>
+                <h5 class="text-center" style="margin-top: 0; margin-bottom: 0; font-weight: 500; color: inherit; vertical-align: baseline; font-size: 20px; line-height: 24px;" align="center">Class summary
+                </h5>
+                <table class="table" border="0" cellpadding="0" cellspacing="0" style="font-family: Helvetica, Arial, sans-serif; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: collapse; width: 100%; max-width: 100%;" bgcolor="#ffffff">
+                    <tbody>
+                    <tr>
+                        <td style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-width: 1px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">Overall class median: {{ class.overall_median }}%</td>
+                        <td class="text-{% if class.overall_median_change > 0 %}success{% else %}danger{% endif %} text-right" style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-width: 1px; border-top-color: #e9ecef; border-top-style: solid; color: #28a745; margin: 0; padding: 12px;" align="right" valign="top">({% if class.overall_median_change > 0 %}increase{% else %}decrease{% endif %} of {{ abs(class.overall_median_change) }}% from last week)</td>
+                    </tr>
+                    <tr>
+                        <td style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-width: 1px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">This week's class median: {{ class.this_week_median }}%</td>
+                        <td class="text-{% if class.this_week_median_change > 0 %}success{% else %}danger{% endif %} text-right" style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-width: 1px; border-top-color: #e9ecef; border-top-style: solid; color: #28a745; margin: 0; padding: 12px;" align="right" valign="top">({% if class.this_week_median_change > 0 %}increase{% else %}decrease{% endif %} of {{ abs(class.this_week_median_change) }}% from last week)</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+{% endblock %}

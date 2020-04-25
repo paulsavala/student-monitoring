@@ -10,5 +10,5 @@ class Course:
     def create_summary(self):
         raise NotImplementedError
 
-    def create_email(self):
+    def create_email_card(self):
         raise NotImplementedError
