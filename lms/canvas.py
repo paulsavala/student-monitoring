@@ -6,6 +6,7 @@ from models.assignment import Assignment, AssignmentCollection
 from models.student import Student
 
 from collections import defaultdict
+import numpy as np
 
 
 class CanvasApi(GenericApi):
@@ -57,7 +58,7 @@ class CanvasApi(GenericApi):
         current_courses = [c for c in all_courses if c.term['name'] == 'Spring 2020']
         # Filter out courses with no students
         current_courses = [c for c in current_courses if c.total_students > 0]
-        courses = [Course(c.id, c.name) for c in current_courses]
+        courses = [Course(c.id, c.name, instructor) for c in current_courses]
         return courses
 
     def get_students_in_course(self, course):
@@ -70,6 +71,20 @@ class CanvasApi(GenericApi):
         enrollments_obj = course_obj.get_enrollments(type=['StudentEnrollment'])
         students = [Student(name=e.user['name'], lms_id=e.user['id']) for e in enrollments_obj]
         return students
+
+    def get_course_grade_summary(self, course, summary_stat, last_week=False):
+        assert summary_stat.lower() == 'mean' or summary_stat.lower() == 'median', \
+            'summary_stat must be either "mean" or "median"'
+        course_obj = self.lms.get_course(course.course_id)
+        enrollments_obj = course_obj.get_enrollments(type=['StudentEnrollment'])
+        current_scores = [e.grades['current_score'] for e in enrollments_obj if e.grades['current_score'] > 0]
+
+        if summary_stat == 'mean':
+            summary_stat = np.mean(current_scores)
+        elif summary_stat == 'median':
+            summary_stat = np.median(current_scores)
+
+        return summary_stat
 
     def get_course_grades(self, course):
         """

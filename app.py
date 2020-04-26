@@ -1,8 +1,9 @@
 from config import StEdwardsConfig
 from utils import db
 import os
+from collections import defaultdict
 
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 def bootstrap():
@@ -52,11 +53,14 @@ def bootstrap():
 
     return conn, cursor
 
+
 def prep_jinja():
     env = Environment(
-        loader=PackageLoader('yourapplication', 'templates'),
-        autoescape=select_autoescape(['html', 'xml'])
+        loader=FileSystemLoader('templates'),
+        autoescape=select_autoescape(['html'])
     )
+    return env
+
 
 if __name__ == '__main__':
     # Bootstrap if needed and get the connection and a cursor
@@ -73,26 +77,31 @@ if __name__ == '__main__':
         instructor = lms.get_instructor(populate=True)
 
         instructor_outliers = []
+        course_outliers = []
         for course in instructor.courses:
-            course_outliers = []
+            course_outliers = defaultdict(list)
             for student in course.students:
-                # Fetch the grades for those students
+                # Fetch the grades for those students (returns AssignmentCollection)
                 assignments = student.get_course_assignments(course)
 
-                # Create CI's for each student
+                # Create CI's for each student (returns floats)
                 left, right = assignments.form_ci(StEdwardsConfig.distribution)
+                student.set_ci(left, right)
 
-                # Look for new good/bad results
+                # Look for new good/bad results (returns AssignmentCollection)
                 outlier_assignments = assignments.identify_outliers(left, right)
 
-                # Create student summary
-                course_outliers.append(outlier_assignments)
+                # Create student summary (list of AssignmentCollection objects)
+                course_outliers[course].append(outlier_assignments)
 
-            # (Optional) Create class summary
-            course_outliers = course.create_summary(outlier_assignments)
+            # Create class summary
+            summary_stat = StEdwardsConfig.course_summary_stat
+            summary_stat_value = lms.get_course_grade_summary(course, summary_stat=summary_stat)
+            course_summary = {'summary_stat': summary_stat, 'summary_stat_value': summary_stat_value}
 
             # Craft (email) card for this course
-            course_card = course.create_email_card(course_outliers)
+            env = prep_jinja()
+            course_card = course.create_email_card(course_outliers[course], course_summary, env)
             instructor_outliers.append(course_card)
 
         # Send email

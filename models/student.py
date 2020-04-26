@@ -7,6 +7,8 @@ class Student:
 
         self.assignment_collections = None
         self.assignment_map = None
+        self.ci_left = None
+        self.ci_right = None
 
     def set_assignments(self, assignment_collections):
         if not isinstance(assignment_collections, list):
@@ -22,3 +24,7 @@ class Student:
     def get_course_assignments(self, course):
         assert self.assignment_collections is not None, 'Student has no grades'
         return self.assignment_map.get(course)
+
+    def set_ci(self, left, right):
+        self.ci_left = left
+        self.ci_right = right

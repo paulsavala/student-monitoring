@@ -5,6 +5,7 @@ class Config:
     env = 'DEV'
     db_file = 'app.db'
     lms = None
+    course_summary_stat = 'median'  # or 'mean'
 
 
 class StEdwardsConfig(Config):
