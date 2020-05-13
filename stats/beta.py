@@ -3,9 +3,11 @@ from scipy.stats import beta
 
 
 class BetaDistribution:
-    def __init__(self, a=None, b=None):
+    def __init__(self, a=None, b=None, default_left=0, default_right=1):
         self.a = a
         self.b = b
+        self.default_left = default_left
+        self.default_right = default_right
 
     def fit(self, grades):
         mu = np.mean(grades)
@@ -27,9 +29,9 @@ class BetaDistribution:
         left = np.round(left, 1)
         right = np.round(right, 1)
         if np.isnan(left):
-            left = 0
+            left = self.default_left
         if np.isnan(right):
-            right = 1
+            right = self.default_right
 
         return left, right
 

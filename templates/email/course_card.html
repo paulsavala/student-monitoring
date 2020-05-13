@@ -8,7 +8,7 @@
                     <tbody>
                     {% for assignment in course_outliers %}
                     <tr class="text-{% if assignment.score > assignment.student.ci_right %}success{% else %}danger{% endif %}" style="color: #dc3545;" bgcolor="#f2f2f2">
-                        <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ student.name }}</td>
+                        <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ assignment.student.name }}</td>
                         <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ assignment.name }}</td>
                         <td class="text-right" style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="right" valign="top">{{ assignment.score }}% (Expected grade: {{ assignment.ci_left }}% to {{ assignment.ci_right }}%)</td>
                     </tr>
