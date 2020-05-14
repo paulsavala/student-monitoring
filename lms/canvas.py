@@ -2,7 +2,7 @@ from canvasapi import Canvas
 from lms.generic import GenericApi
 from models.course import Course
 from models.instructor import Instructor
-from models.assignment import Assignment, AssignmentCollection
+from models.assignment import Assignment
 from models.student import Student
 
 from collections import defaultdict
@@ -40,10 +40,9 @@ class CanvasApi(GenericApi):
         instructor.courses = courses
         for c in courses:
             c.students = self.get_students_in_course(c)
-            course_grades = self.get_course_grades(c)
-            course_grades_by_student = {ac.student.lms_id: ac for ac in course_grades}
+            course_grades_by_student = self.get_course_grades(c)
             for s in c.students:
-                s.set_assignments(course_grades_by_student[s.lms_id])
+                s.set_assignments(c, course_grades_by_student[s.lms_id])
         return instructor
 
     def get_courses(self, instructor):
@@ -114,14 +113,14 @@ class CanvasApi(GenericApi):
                 if not s.score:
                     s.score = 0
                 student_assignments[s.user_id].append(
-                    Assignment(students_by_id[s.user_id],
-                               a.name,
+                    Assignment(a.name,
                                a.due_at,
                                s.score / a.points_possible
                                )
                 )
 
-        return [AssignmentCollection(s, course, student_assignments[s.lms_id]) for s in students]
+        return {s.lms_id: student_assignments[s.lms_id] for s in students}
+        # return [AssignmentCollection(s, course, student_assignments[s.lms_id]) for s in students]
 
     def get_student_grades(self, student, course):
         """
@@ -137,10 +136,9 @@ class CanvasApi(GenericApi):
 
         for a in graded_assignments:
             for s in a.get_submission(student.lms_id):
-                student_assignments.append(Assignment(student.lms_id,
-                                                      a.name,
+                student_assignments.append(Assignment(a.name,
                                                       a.due_at,
                                                       s.score / a.points_possible)
                                            )
 
-        return AssignmentCollection(student, course, student_assignments)
+        return student_assignments

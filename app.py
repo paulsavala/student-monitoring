@@ -81,17 +81,17 @@ if __name__ == '__main__':
         for course in instructor.courses:
             course_outliers = defaultdict(list)
             for student in course.students:
-                # Fetch the grades for those students -> AssignmentCollection
+                # Fetch the grades for those students -> list of Assignments
                 assignments = student.get_course_assignments(course)
 
                 # Create CI's for each student -> floats
                 left, right = assignments.form_ci(StEdwardsConfig.distribution)
                 student.set_ci(left, right)
 
-                # Look for new good/bad results -> Assignment
+                # Look for new good/bad results -> Assignments
                 outlier_assignments = student.get_outliers(course)
 
-                # Create student summary -> list of Assignment
+                # Create student summary -> list of Assignments
                 if outlier_assignments:
                     course_outliers[course].append(*outlier_assignments)
 
