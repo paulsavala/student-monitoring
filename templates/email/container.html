@@ -8,6 +8,10 @@
 </head>
 <body style="outline: 0; width: 100%; min-width: 100%; height: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; font-family: Helvetica, Arial, sans-serif; line-height: 24px; font-weight: normal; font-size: 16px; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; margin: 0; padding: 0; border: 0;">
 
+{% macro sentence_case(text) %}
+    {{ text[0]|upper}}{{text[1:] }}
+{% endmacro %}
+
 <div class="preview" style="display: none; max-height: 0px; overflow: hidden;">
     Course updates for {{ instructor.name }} ({{ current_date }})                                                                              
 </div>
@@ -43,7 +47,7 @@
 
                                     <table class="card " border="0" cellpadding="0" cellspacing="0" style="font-family: Helvetica, Arial, sans-serif; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: separate !important; border-radius: 4px; width: 100%; overflow: hidden; border: 1px solid #dee2e6;" bgcolor="#ffffff">
                                         <tbody>
-                                        {% for course in instructor.courses %}
+                                        {% for course_context_dict in context_dicts %}
                                         <tr>
                                             <td style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; width: 100%; margin: 0;" align="left">
                                                 <div style="border-top-width: 5px; border-top-color: blue; border-top-style: solid;">

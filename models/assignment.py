@@ -2,8 +2,8 @@ from datetime import datetime
 
 
 class Assignment:
-    def __init__(self, assigment_name, due_date, score):
-        self.assigment_name = assigment_name
+    def __init__(self, assignment_name, due_date, score):
+        self.assignment_name = assignment_name
         self.due_date = due_date
         self.score = score
 

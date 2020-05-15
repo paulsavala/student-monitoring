@@ -2,7 +2,7 @@ from config import StEdwardsConfig
 from utils import db
 import os
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, date
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -77,7 +77,9 @@ if __name__ == '__main__':
         lms = StEdwardsConfig.load_lms(api_url, api_token)
         instructor = lms.get_instructor(populate=True)
 
-        course_cards = []
+        course_context_dicts = []
+        # Used for testing since there are no current assignments
+        ref_date = datetime(2020, 4, 5)
         for course in instructor.courses:
             course_outliers = defaultdict(list)
             for student in course.students:
@@ -85,7 +87,7 @@ if __name__ == '__main__':
                 student.form_ci(course, StEdwardsConfig.distribution, save_ci=True)
 
                 # Look for new good/bad results -> Assignments
-                outlier_assignments = student.get_outliers(course, ref_date=datetime(2020, 4, 12))
+                outlier_assignments = student.get_outliers(course, ref_date=ref_date)
 
                 # Create student summary -> list of Assignments
                 if outlier_assignments:
@@ -98,8 +100,13 @@ if __name__ == '__main__':
 
             # Craft (email) card for this course
             env = prep_jinja()
-            course_card = course.create_email_card(course, course_outliers, course_summary, env)
-            course_cards.append(course_card)
+            course_card = course.context_dict(course_outliers, course_summary)
+            course_context_dicts.append(course_card)
 
         # Send email
-        instructor.send_email(course_cards)
+        context_dict = {'context_dicts': course_context_dicts,
+                        'instructor': instructor,
+                        'current_date': ref_date
+                        }
+        email = instructor.render_email(context_dict, env)
+        instructor.send_email(email)

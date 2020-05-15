@@ -7,5 +7,10 @@ class Instructor:
         self.lms_id = lms_id
         self.courses = courses
 
-    def send_email(self):
+    def render_email(self, context_dict, env):
+        email_template = env.get_template('email/container.html')
+        rendered_email = email_template.render(context_dict)
+        return rendered_email
+
+    def send_email(self, rendered_email):
         raise NotImplementedError
