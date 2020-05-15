@@ -22,7 +22,7 @@ class Student:
             if ref_date is None:
                 ref_date = datetime.now()
             assignments = [a for a in self.assignments.get(course)
-                           if (ref_date - a.due_date).days <= 7 and ref_date > a.due_date]
+                           if (ref_date - a.due_date).days < 7 and ref_date > a.due_date]
         if scores_only:
             assignments = [a.score for a in assignments]
         return assignments

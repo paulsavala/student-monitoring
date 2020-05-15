@@ -8,10 +8,10 @@
                     <tbody>
                     {% for student, student_assignments in course_context_dict.course_outliers.items() %}
                         {% for assignment in student_assignments %}
-                            <tr class="table-{{ 'success' if assignment.score > student.ci_right else 'danger' }}">
+                            <tr style="color: #{{ '06bf00' if assignment.score > student.ci_right else "bf0000" }};">
                                 <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ student.name }}</td>
                                 <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ assignment.assignment_name }}</td>
-                                <td class="text-right" style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="right" valign="top">{{ 100*assignment.score | round(1, 'common') }}% (Expected grade: {{ 100*student.ci_left | round(1, 'common') }}% to {{ 100*student.ci_right | round(1, 'common') }}%)</td>
+                                <td class="text-right" style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="right" valign="top">{{ (100*assignment.score) | round | int }}% (Expected: {{ (100*student.ci_left) | round | int }}% to {{ (100*student.ci_right) | round | int }}%)</td>
                             </tr>
                         {% endfor %}
                     {% endfor %}
