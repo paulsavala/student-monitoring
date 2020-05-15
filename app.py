@@ -2,6 +2,7 @@ from config import StEdwardsConfig
 from utils import db
 import os
 from collections import defaultdict
+from datetime import datetime
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -76,34 +77,29 @@ if __name__ == '__main__':
         lms = StEdwardsConfig.load_lms(api_url, api_token)
         instructor = lms.get_instructor(populate=True)
 
-        instructor_outliers = []
-        course_outliers = []
+        course_cards = []
         for course in instructor.courses:
             course_outliers = defaultdict(list)
             for student in course.students:
-                # Fetch the grades for those students -> list of Assignments
-                assignments = student.get_course_assignments(course)
-
                 # Create CI's for each student -> floats
-                left, right = assignments.form_ci(StEdwardsConfig.distribution)
-                student.set_ci(left, right)
+                student.form_ci(course, StEdwardsConfig.distribution, save_ci=True)
 
                 # Look for new good/bad results -> Assignments
-                outlier_assignments = student.get_outliers(course)
+                outlier_assignments = student.get_outliers(course, ref_date=datetime(2020, 4, 12))
 
                 # Create student summary -> list of Assignments
                 if outlier_assignments:
-                    course_outliers[course].append(*outlier_assignments)
+                    course_outliers[student] = outlier_assignments
 
-            # Create class summary
+            # Create class summary (meam/median class grade)
             summary_stat = StEdwardsConfig.course_summary_stat
             summary_stat_value = lms.get_course_grade_summary(course, summary_stat=summary_stat)
             course_summary = {'summary_stat': summary_stat, 'summary_stat_value': summary_stat_value}
 
             # Craft (email) card for this course
             env = prep_jinja()
-            course_card = course.create_email_card(course_outliers[course], course_summary, env)
-            instructor_outliers.append(course_card)
+            course_card = course.create_email_card(course, course_outliers, course_summary, env)
+            course_cards.append(course_card)
 
         # Send email
-        instructor.send_email(instructor_outliers)
+        instructor.send_email(course_cards)

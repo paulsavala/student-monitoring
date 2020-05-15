@@ -6,12 +6,14 @@
                 <h5 class="text-center" style="margin-top: 0; margin-bottom: 0; font-weight: 500; color: inherit; vertical-align: baseline; font-size: 20px; line-height: 24px;" align="center"><strong>{{ course.name }}</strong></h5>
                 <table id="outlier_students" class="table table-striped" border="0" cellpadding="0" cellspacing="0" style="font-family: Helvetica, Arial, sans-serif; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: collapse; width: 100%; max-width: 100%;" bgcolor="#ffffff">
                     <tbody>
-                    {% for assignment in course_outliers %}
-                    <tr class="text-{% if assignment.score > assignment.student.ci_right %}success{% else %}danger{% endif %}" style="color: #dc3545;" bgcolor="#f2f2f2">
-                        <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ assignment.student.name }}</td>
-                        <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ assignment.name }}</td>
-                        <td class="text-right" style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="right" valign="top">{{ assignment.score }}% (Expected grade: {{ assignment.ci_left }}% to {{ assignment.ci_right }}%)</td>
-                    </tr>
+                    {% for student, student_assignments in course_outliers.items() %}
+                        {% for assignment in student_outliers %}
+                            <tr class="text-{% if assignment.score > student.ci_right %}success{% else %}danger{% endif %}" style="color: #dc3545;" bgcolor="#f2f2f2">
+                                <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ student.name }}</td>
+                                <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ assignment.name }}</td>
+                                <td class="text-right" style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="right" valign="top">{{ assignment.score | round(1) }}% (Expected grade: {{ 100*student.ci_left | round(1) }}% to {{ assignment.ci_right | round(1) }}%)</td>
+                            </tr>
+                        {% endfor %}
                     {% endfor %}
                     </tbody>
                 </table>

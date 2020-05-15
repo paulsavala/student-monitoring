@@ -71,13 +71,16 @@ class CanvasApi(GenericApi):
         students = [Student(name=e.user['name'], lms_id=e.user['id']) for e in enrollments_obj]
         return students
 
-    def get_course_grade_summary(self, course, summary_stat, last_week=False):
+    def get_course_grade_summary(self, course, summary_stat):
         assert summary_stat.lower() == 'mean' or summary_stat.lower() == 'median', \
             'summary_stat must be either "mean" or "median"'
         course_obj = self.lms.get_course(course.course_id)
         enrollments_obj = course_obj.get_enrollments(type=['StudentEnrollment'])
-        current_scores = [e.grades['current_score'] for e in enrollments_obj if e.grades['current_score'] > 0]
+        current_scores = [e.grades['current_score'] for e in enrollments_obj if
+                          e.grades['current_score'] is not None and e.grades.get('current_score') > 0]
 
+        if not current_scores:
+            return None
         if summary_stat == 'mean':
             summary_stat = np.mean(current_scores)
         elif summary_stat == 'median':
