@@ -37,6 +37,8 @@ if __name__ == '__main__':
                 # Create student summary -> list of Assignments
                 if outlier_assignments:
                     course_outliers[student] = outlier_assignments
+                    if config.commit_outliers_to_db:
+                        student.commit_outliers_to_db(outlier_assignments, cursor, conn)
 
             # Create class summary (mean/median class grade)
             summary_stat = config.course_summary_stat
@@ -51,8 +53,8 @@ if __name__ == '__main__':
         # Send email
         context_dict = {'context_dicts': course_context_dicts,
                         'instructor': instructor,
-                        'current_date': datetime.now(),
-                        'week_start': datetime.now() - datetime.timedelta(days=6)
+                        'current_date': datetime.datetime.now(),
+                        'week_start': datetime.datetime.now() - datetime.timedelta(days=6)
                         }
         email = instructor.render_email(context_dict, env)
         instructor.send_email(email)

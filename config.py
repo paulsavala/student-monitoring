@@ -6,12 +6,14 @@ class Config:
     db_file = 'app.db'
     lms = None
     course_summary_stat = 'median'  # or 'mean'
+    commit_outliers_to_db = False
 
 
 class StEdwardsConfig(Config):
     api_url = 'https://stedwards.instructure.com/'
     distribution = BetaDistribution
     datetime_format = '%Y-%m-%dT%H:%M:%SZ'
+    commit_outliers_to_db = True
 
     # Done to avoid circular import
     @classmethod

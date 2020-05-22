@@ -68,7 +68,12 @@ class CanvasApi(GenericApi):
         """
         course_obj = self.lms.get_course(course.course_id)
         enrollments_obj = course_obj.get_enrollments(type=['StudentEnrollment'])
-        students = [Student(name=e.user['name'], lms_id=e.user['id']) for e in enrollments_obj]
+        enrollments_by_student = {e.user['id']: e for e in enrollments_obj}
+        students = [Student(name=e.user['name'], lms_id=e.user['id'])
+                    for e in enrollments_obj]
+        for s in students:
+            student_enrollment_obj = enrollments_by_student[s.lms_id]
+            s.set_current_score(course, student_enrollment_obj.grades['current_score'])
         return students
 
     def get_course_grade_summary(self, course, summary_stat):

@@ -28,8 +28,22 @@ def bootstrap(config, db):
                 canvas_id INTEGER
             );
             '''
+    CREATE_OUTLIERS_TABLE = '''
+                CREATE TABLE IF NOT EXISTS outliers (
+                    id INTEGER PRIMARY KEY,
+                    student_name VARCHAR(128) NOT NULL,
+                    student_lms_id VARCHAR(128) NOT NULL,
+                    assignment_name VARCHAR(128) NOT NULL,
+                    course_lms_id VARCHAR(128) NOT NULL,
+                    ci_left FLOAT NOT NULL,
+                    ci_right FLOAT NOT NULL,
+                    assignment_score FLOAT NOT NULL,
+                    due_date TIMESTAMP NOT NULL
+                );
+                '''
     db.run_query(CREATE_INSTRUCTOR_TABLE, cursor)
     db.run_query(CREATE_COURSE_TABLE, cursor)
+    db.run_query(CREATE_OUTLIERS_TABLE, cursor)
 
     CREATE_INITIAL_INSTRUCTOR = '''
         INSERT INTO instructors (name, email, department, api_token) 

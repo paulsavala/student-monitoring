@@ -28,6 +28,9 @@ def create_cursor(conn):
     return cursor
 
 
-def run_query(query, cursor):
-    cursor.execute(query)
+def run_query(query, cursor, params=None):
+    if params:
+        cursor.execute(query, params)
+    else:
+        cursor.execute(query)
     return cursor.fetchall()
