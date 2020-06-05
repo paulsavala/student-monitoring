@@ -1,17 +1,20 @@
 from datetime import datetime
 
 from utils.db import run_query
+from utils.models import add_to_list, remove_from_list
 
 
 class Student:
-    def __init__(self, name, lms_id):
+    def __init__(self, name, lms_id, enrollments=None):
         self.name = name
         self.lms_id = lms_id
+        self.enrollments = enrollments
 
-        self.current_score = dict()
-        self.assignments = dict()
-        self.ci_left = None
-        self.ci_right = None
+    def add_enrollments(self, enrollments):
+        self.enrollments = add_to_list(self.enrollments, enrollments)
+
+    def remove_enrollments(self, enrollments):
+        self.enrollments = remove_from_list(self.enrollments, enrollments)
 
     def set_current_score(self, course, current_score):
         self.current_score[course] = current_score

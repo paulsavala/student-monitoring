@@ -1,3 +1,4 @@
+from utils.models import add_to_list, remove_from_list
 
 
 class Instructor:
@@ -14,3 +15,9 @@ class Instructor:
 
     def send_email(self, rendered_email):
         raise NotImplementedError
+
+    def add_courses(self, courses):
+        self.courses = add_to_list(self.courses, courses)
+
+    def remove_courses(self, courses):
+        self.courses = remove_from_list(self.courses, courses)

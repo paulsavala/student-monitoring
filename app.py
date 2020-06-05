@@ -3,6 +3,13 @@ from utils import db
 from bootstrap.db import bootstrap
 from bootstrap.jinja import prep_jinja
 
+from models.assignment import Assignment
+from models.course import Course
+from models.instructor import Instructor
+from models.student import Student
+from models.enrollment import Enrollment
+from models.grade import Grade
+
 from collections import defaultdict
 import datetime
 
@@ -21,8 +28,46 @@ if __name__ == '__main__':
         # Connect to the instructors Canvas account
         api_token = i['api_token']
         lms = config.load_lms(api_url, api_token)
-        instructor = lms.get_instructor(populate=True)
+        instructor_dict = lms.get_instructor()
+        instructor = Instructor(name=instructor_dict['name'],
+                                email=instructor_dict['email'],
+                                lms_id=instructor_dict['lms_id'])
+        # INSTRUCTOR_COURSES = f'''SELECT DISTINCT course FROM course_instances WHERE instructor={instructor['lms_id']}'''
+        # instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor)
+        # instructor.add_courses([Course(instructor_courses_dict[''])])
+        courses_dict = lms.get_courses_by_instructor(instructor, config.semester)
+        instructor.add_courses([Course(c['id'], c['name']) for c in courses_dict])
 
+        for course in instructor.courses:
+            # Get the students, enrollments, assigments, and grades for this course
+            students_dict = lms.get_students_in_course(course)
+            students = [Student(student['name'],
+                                student['lms_id']) for student in students_dict]
+
+            assignments_dict = lms.get_course_assignments(course)
+            # Check to make sure the course actually has assignments (for example, 4157 should be skipped)
+            if not assignments_dict:
+                continue
+            assignments = [Assignment(assignment['lms_id'],
+                                      assignment['name'],
+                                      assignment['due_date'],
+                                      course) for assignment in assignments_dict]
+            course.add_assignments(assignments)
+
+            grades_dict = lms.get_course_grades(course, students, assignments)
+            current_scores_dict = lms.get_current_scores(course)
+            for student in students:
+                enrollment = Enrollment(student, course, current_score=current_scores_dict[student.lms_id])
+                student_grades = []
+                for assignment in assignments:
+                    # Find the entry in grades_dict corresponding to this assignment
+                    assignment_score = [a for a in grades_dict[student] if a['lms_id'] == assignment.lms_id]
+                    if assignment_score:
+                        student_grades.append(Grade(student, course, assignment, assignment_score[0]['score']))
+                enrollment.add_grades(student_grades)
+                student.add_enrollments(enrollment)
+
+        # Context dictionaries are used by Jinja to create the emails
         course_context_dicts = []
         # Used for testing since there are no current assignments
         for course in instructor.courses:

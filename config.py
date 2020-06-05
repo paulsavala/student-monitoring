@@ -14,6 +14,7 @@ class StEdwardsConfig(Config):
     distribution = BetaDistribution
     datetime_format = '%Y-%m-%dT%H:%M:%SZ'
     commit_outliers_to_db = True
+    semester = 'Spring 2020'
 
     # Done to avoid circular import
     @classmethod
