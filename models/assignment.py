@@ -12,7 +12,3 @@ class Assignment:
             # todo: How can I pull this from the config instead? Don't want to pass the config due to circular imports,
             # todo: and I want this to work for any config.
             self.due_date = datetime.strptime(due_date, '%Y-%m-%dT%H:%M:%SZ')
-
-    def is_outlier(self, left, right):
-        is_outlier = (self.score < left) or (self.score > right)
-        return is_outlier
