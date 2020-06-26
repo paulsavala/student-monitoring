@@ -22,19 +22,20 @@ def bootstrap(config, db):
     CREATE_COURSE_TABLE = '''
             CREATE TABLE IF NOT EXISTS courses (
                 id INTEGER PRIMARY KEY,
+                name VARCHAR(256) NOT NULL,
                 department VARCHAR(128) NOT NULL,
-                number INTEGER NOT NULL,
-                section INTEGER,
-                canvas_id INTEGER
+                number INTEGER NOT NULL
             );
             '''
     CREATE_COURSE_INSTANCE_TABLE = '''
                 CREATE TABLE IF NOT EXISTS course_instances (
                     id INTEGER PRIMARY KEY,
+                    canvas_id INTEGER,
                     instructor INTEGER NOT NULL,
                     course INTEGER NOT NULL,
                     season VARCHAR(128),
                     year INTEGER,
+                    section INTEGER,
                     FOREIGN KEY (instructor) REFERENCES instructors(id),
                     FOREIGN KEY (course) REFERENCES courses(id)
                 );
@@ -63,45 +64,34 @@ def bootstrap(config, db):
         WHERE NOT EXISTS (SELECT 1 FROM instructors WHERE email = 'psavala@stedwards.edu');
     '''
     CREATE_INITIAL_COURSE = '''
-        INSERT INTO courses (department, number, section, canvas_id) 
-        SELECT 'MATH', 3320, 2, 201832
-        WHERE NOT EXISTS (SELECT 1 FROM courses WHERE canvas_id = 201832);
+        INSERT INTO courses (name, department, number) 
+        SELECT 'APPLIED STATISTICS', 'MATH', 3320
+        WHERE NOT EXISTS (SELECT 1 FROM courses WHERE department='MATH' AND number=3320);
     '''
     CREATE_SECOND_COURSE = '''
-            INSERT INTO courses (department, number, section, canvas_id) 
-            SELECT 'MATH', 3320, 1, 21853
-            WHERE NOT EXISTS (SELECT 1 FROM courses WHERE canvas_id = 21853);
-        '''
-    CREATE_THIRD_COURSE = '''
-            INSERT INTO courses (department, number, section, canvas_id) 
-            SELECT 'MATH', 3349, 1, 12345
-            WHERE NOT EXISTS (SELECT 1 FROM courses WHERE canvas_id = 12345);
+            INSERT INTO courses (name, department, number) 
+            SELECT 'INTRODUCTION TO DATA SCIENCE', 'MATH', 3349
+            WHERE NOT EXISTS (SELECT 1 FROM courses WHERE department='MATH' AND number=3349);
         '''
     CREATE_INITIAL_COURSE_INSTANCE = '''
-            INSERT INTO course_instances (instructor, course, season, year) 
-            VALUES ((SELECT id FROM instructors WHERE email='psavala@stedwards.edu'), 
-            (SELECT id FROM courses WHERE department='MATH' and number=3320 and section=2),
-            'SPRING', 2020);
+            INSERT INTO course_instances (canvas_id, instructor, course, season, year, section) 
+            VALUES (22490, 
+            (SELECT id FROM instructors WHERE email='psavala@stedwards.edu'), 
+            (SELECT id FROM courses WHERE department='MATH' and number=3320),
+            'SPRING', 2020, 2);
         '''
     CREATE_SECOND_COURSE_INSTANCE = '''
-                INSERT INTO course_instances (instructor, course, season, year) 
-                VALUES ((SELECT id FROM instructors WHERE email='psavala@stedwards.edu'), 
-                (SELECT id FROM courses WHERE department='MATH' and number=3320 and section=1),
-                'SPRING', 2020);
-            '''
-    CREATE_THIRD_COURSE_INSTANCE = '''
-                INSERT INTO course_instances (instructor, course, season, year) 
-                VALUES ((SELECT id FROM instructors WHERE email='psavala@stedwards.edu'), 
-                (SELECT id FROM courses WHERE department='MATH' and number=3349 and section=1),
-                'SPRING', 2020);
+                INSERT INTO course_instances (canvas_id, instructor, course, season, year, section) 
+                VALUES (21853,
+                (SELECT id FROM instructors WHERE email='psavala@stedwards.edu'), 
+                (SELECT id FROM courses WHERE department='MATH' and number=3320),
+                'SPRING', 2020, 1);
             '''
     db.run_query(CREATE_INITIAL_INSTRUCTOR, cursor)
     db.run_query(CREATE_INITIAL_COURSE, cursor)
     db.run_query(CREATE_SECOND_COURSE, cursor)
-    db.run_query(CREATE_THIRD_COURSE, cursor)
     db.run_query(CREATE_INITIAL_COURSE_INSTANCE, cursor)
     db.run_query(CREATE_SECOND_COURSE_INSTANCE, cursor)
-    db.run_query(CREATE_THIRD_COURSE_INSTANCE, cursor)
 
     conn.commit()
 

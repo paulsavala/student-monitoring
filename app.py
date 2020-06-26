@@ -39,18 +39,19 @@ if __name__ == '__main__':
         instructor = Instructor(name=instructor_dict['name'],
                                 email=instructor_dict['email'],
                                 lms_id=instructor_dict['lms_id'])
-        # INSTRUCTOR_COURSES = f'''SELECT DISTINCT course FROM course_instances WHERE instructor=?'''
-        # params = (instructor['lms_id'])
-        # instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor, params)
-        # instructor.add_courses([Course(instructor_courses_dict[''])])
-        courses_dict = lms.get_courses_by_instructor(instructor, config.semester)
-        instructor.add_courses([Course(c['id'], c['name']) for c in courses_dict])
+        INSTRUCTOR_COURSES = f'''SELECT DISTINCT course_instances.canvas_id, name FROM 
+                                    course_instances JOIN courses ON course_instances.course = courses.id 
+                                    WHERE instructor=?'''
+        params = [i['id']]
+        instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor, params)
+        instructor.add_courses([Course(course_id=c['canvas_id'], name=c['name']) for c in instructor_courses_dict])
+        # courses_dict = lms.get_courses_by_instructor(instructor, config.semester)
+        # instructor.add_courses([Course(c['id'], c['name']) for c in courses_dict])
 
         for course in instructor.courses:
             # Get the students, enrollments, assigments, and grades for this course
             students_dict = lms.get_students_in_course(course)
-            students = [Student(student['name'],
-                                student['lms_id']) for student in students_dict]
+            students = [Student(student['name'], student['lms_id']) for student in students_dict]
             course.add_students(students)
 
             assignments_dict = lms.get_course_assignments(course)
