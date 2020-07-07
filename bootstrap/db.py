@@ -10,13 +10,33 @@ def bootstrap(config, db):
     conn = db.create_connection(config.db_file)
     cursor = db.create_cursor(conn)
 
+    CREATE_SCHOOL_TABLE = '''
+        CREATE TABLE IF NOT EXISTS schools (
+            id INTEGER PRIMARY KEY,
+            name VARCHAR(256) NOT NULL,
+            city VARCHAR(128) NOT NULL,
+            state VARCHAR(2) NOT NULL
+        );
+    '''
+    CREATE_DEPARTMENT_TABLE = '''
+        CREATE TABLE IF NOT EXISTS departments (
+            id INTEGER PRIMARY KEY,
+            long_name VARCHAR(256) NOT NULL,
+            short_name VARCHAR(16) NOT NULL UNIQUE,
+            college VARCHAR(128),
+            school INTEGER NOT NULL,
+            FOREIGN KEY (school) REFERENCES schools(id)
+        );
+    '''
+    # instructor.id is a varchar to support flask_login, which requires this
     CREATE_INSTRUCTOR_TABLE = '''
         CREATE TABLE IF NOT EXISTS instructors (
-            id INTEGER PRIMARY KEY,
+            id VARCHAR(256) PRIMARY KEY,
             name VARCHAR(128) NOT NULL,
             email VARCHAR(128) NOT NULL UNIQUE,
-            department VARCHAR(128) NOT NULL,
-            api_token VARCHAR(128) NOT NULL
+            department VARCHAR(128),
+            profile_pic VARCHAR(256),
+            api_token VARCHAR(128)
         );
         '''
     CREATE_COURSE_TABLE = '''
@@ -53,46 +73,38 @@ def bootstrap(config, db):
                     due_date TIMESTAMP NOT NULL
                 );
                 '''
+    db.run_query(CREATE_SCHOOL_TABLE, cursor)
+    db.run_query(CREATE_DEPARTMENT_TABLE, cursor)
     db.run_query(CREATE_INSTRUCTOR_TABLE, cursor)
     db.run_query(CREATE_COURSE_TABLE, cursor)
     db.run_query(CREATE_COURSE_INSTANCE_TABLE, cursor)
     db.run_query(CREATE_OUTLIERS_TABLE, cursor)
 
-    CREATE_INITIAL_INSTRUCTOR = '''
-        INSERT INTO instructors (name, email, department, api_token) 
-        SELECT 'Paul Savala', 'psavala@stedwards.edu', 'MATH', '3286~8dlESHq3nIk4XSxU43srFlqhCJbQFxHD1rwFYhx6mo2A1oXB7INfi94csvP4NuWX'
-        WHERE NOT EXISTS (SELECT 1 FROM instructors WHERE email = 'psavala@stedwards.edu');
+    CREATE_INITIAL_SCHOOL = '''
+        INSERT INTO schools (name, city, state)
+        SELECT "ST. EDWARD'S UNIVERSITY", 'AUSTIN', 'TX'
+        WHERE NOT EXISTS (SELECT 1 FROM schools WHERE name="ST. EDWARD'S UNIVERSITY");
     '''
-    CREATE_INITIAL_COURSE = '''
-        INSERT INTO courses (name, department, number) 
-        SELECT 'APPLIED STATISTICS', 'MATH', 3320
-        WHERE NOT EXISTS (SELECT 1 FROM courses WHERE department='MATH' AND number=3320);
-    '''
-    CREATE_SECOND_COURSE = '''
-            INSERT INTO courses (name, department, number) 
-            SELECT 'INTRODUCTION TO DATA SCIENCE', 'MATH', 3349
-            WHERE NOT EXISTS (SELECT 1 FROM courses WHERE department='MATH' AND number=3349);
+    CREATE_MATH_DEPARTMENT = '''
+            INSERT INTO departments (long_name, short_name, college, school)
+            SELECT "MATHEMATICS", 'MATH', 'NATURAL SCIENCE', 1
+            WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="MATH");
         '''
-    CREATE_INITIAL_COURSE_INSTANCE = '''
-            INSERT INTO course_instances (canvas_id, instructor, course, season, year, section) 
-            VALUES (22490, 
-            (SELECT id FROM instructors WHERE email='psavala@stedwards.edu'), 
-            (SELECT id FROM courses WHERE department='MATH' and number=3320),
-            'SPRING', 2020, 2);
-        '''
-    CREATE_SECOND_COURSE_INSTANCE = '''
-                INSERT INTO course_instances (canvas_id, instructor, course, season, year, section) 
-                VALUES (21853,
-                (SELECT id FROM instructors WHERE email='psavala@stedwards.edu'), 
-                (SELECT id FROM courses WHERE department='MATH' and number=3320),
-                'SPRING', 2020, 1);
+    CREATE_CS_DEPARTMENT = '''
+                INSERT INTO departments (long_name, short_name, college, school)
+                SELECT "COMPUTER SCIENCE", 'CSCI', 'NATURAL SCIENCE', 1
+                WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="CSCI");
             '''
-    db.run_query(CREATE_INITIAL_INSTRUCTOR, cursor)
-    db.run_query(CREATE_INITIAL_COURSE, cursor)
-    db.run_query(CREATE_SECOND_COURSE, cursor)
-    db.run_query(CREATE_INITIAL_COURSE_INSTANCE, cursor)
-    db.run_query(CREATE_SECOND_COURSE_INSTANCE, cursor)
+    CREATE_BIOLOGY_DEPARTMENT = '''
+                    INSERT INTO departments (long_name, short_name, college, school)
+                    SELECT "BIOLOGY", 'BIO', 'NATURAL SCIENCE', 1
+                    WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="BIO");
+                '''
 
+    db.run_query(CREATE_INITIAL_SCHOOL, cursor)
+    db.run_query(CREATE_MATH_DEPARTMENT, cursor)
+    db.run_query(CREATE_CS_DEPARTMENT, cursor)
+    db.run_query(CREATE_BIOLOGY_DEPARTMENT, cursor)
     conn.commit()
 
     return conn, cursor
