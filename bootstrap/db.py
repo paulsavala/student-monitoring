@@ -36,7 +36,8 @@ def bootstrap(config, db):
             email VARCHAR(128) NOT NULL UNIQUE,
             department VARCHAR(128),
             profile_pic VARCHAR(256),
-            api_token VARCHAR(128)
+            api_token VARCHAR(128),
+            is_admin BOOLEAN DEFAULT FALSE
         );
         '''
     CREATE_COURSE_TABLE = '''
