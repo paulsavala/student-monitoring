@@ -18,47 +18,70 @@ def bootstrap(config, db):
             state VARCHAR(2) NOT NULL
         );
     '''
+    CREATE_COLLEGE_OF_TABLE = '''
+        CREATE TABLE IF NOT EXISTS college_of (
+            id INTEGER PRIMARY KEY,
+            long_name VARCHAR(128),
+            short_name VARCHAR(16), 
+            
+            school_id INTEGER NOT NULL,
+            FOREIGN KEY (school_id) REFERENCES schools(id)
+        );
+    '''
     CREATE_DEPARTMENT_TABLE = '''
         CREATE TABLE IF NOT EXISTS departments (
             id INTEGER PRIMARY KEY,
             long_name VARCHAR(256) NOT NULL,
             short_name VARCHAR(16) NOT NULL UNIQUE,
             college VARCHAR(128),
-            school INTEGER NOT NULL,
-            FOREIGN KEY (school) REFERENCES schools(id)
+            
+            school_id INTEGER NOT NULL,
+            college_of_id INTEGER NOT NULL,
+            FOREIGN KEY (school_id) REFERENCES schools(id),
+            FOREIGN KEY (college_of_id) REFERENCES college_of(id)
         );
     '''
     # instructor.id is a varchar to support flask_login, which requires this
     CREATE_INSTRUCTOR_TABLE = '''
         CREATE TABLE IF NOT EXISTS instructors (
             id VARCHAR(256) PRIMARY KEY,
-            name VARCHAR(128) NOT NULL,
+            first_name VARCHAR(64) NOT NULL,
+            last_name VARCHAR(64) NOT NULL,
             email VARCHAR(128) NOT NULL UNIQUE,
-            department VARCHAR(128),
-            profile_pic VARCHAR(256),
             api_token VARCHAR(128),
-            is_admin BOOLEAN DEFAULT FALSE
+            is_admin BOOLEAN DEFAULT FALSE,
+            registered BOOLEAN DEFAULT FALSE,
+            
+            department_id INTEGER NOT NULL,
+            school_id INTEGER NOT NULL,
+            FOREIGN KEY (department_id) REFERENCES departments(id),
+            FOREIGN KEY (school_id) REFERENCES schools(id)
         );
         '''
     CREATE_COURSE_TABLE = '''
             CREATE TABLE IF NOT EXISTS courses (
                 id INTEGER PRIMARY KEY,
                 name VARCHAR(256) NOT NULL,
-                department VARCHAR(128) NOT NULL,
-                number INTEGER NOT NULL
+                number INTEGER NOT NULL,
+                
+                department_id INTEGER NOT NULL,
+                FOREIGN KEY (department_id) REFERENCES departments(id)
             );
             '''
     CREATE_COURSE_INSTANCE_TABLE = '''
                 CREATE TABLE IF NOT EXISTS course_instances (
                     id INTEGER PRIMARY KEY,
-                    canvas_id INTEGER,
-                    instructor INTEGER NOT NULL,
-                    course INTEGER NOT NULL,
-                    season VARCHAR(128),
+                    lms_id VARCHAR(1024) UNIQUE,
+                    season VARCHAR(64),
                     year INTEGER,
-                    section INTEGER,
-                    FOREIGN KEY (instructor) REFERENCES instructors(id),
-                    FOREIGN KEY (course) REFERENCES courses(id)
+                    section VARCHAR(64),
+                    
+                    course_id INTEGER NOT NULL,
+                    instructor_id INTEGER NOT NULL,
+                    department_id INTEGER NOT NULL,
+                    FOREIGN KEY (course_id) REFERENCES courses(id),
+                    FOREIGN KEY (instructor_id) REFERENCES instructors(id),
+                    FOREIGN KEY (department_id) REFERENCES departments(id)
                 );
                 '''
     CREATE_OUTLIERS_TABLE = '''
