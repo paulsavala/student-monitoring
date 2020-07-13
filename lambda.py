@@ -9,53 +9,61 @@ from models.instructor import Instructor
 from models.student import Student
 from models.enrollment import Enrollment
 from models.grade import Grade
+from lms.lms import Canvas as LmsClass
 
 from collections import defaultdict
 import datetime
+import json
+from logzero import logger
 
 
-class Dates:
-    semester_first_sunday = datetime.datetime(2020, 1, 19)
-    semester_last_sunday = datetime.datetime(2020, 5, 3)
-
-
-if __name__ == '__main__':
+def handler(event, context):
     config = StEdwardsConfig
 
     # Bootstrap if needed and get the connection and a cursor
     conn, cursor = bootstrap(config, db)
-    api_url = config.api_url
+    SCHOOL_QUERY = '''SELECT api_url FROM schools WHERE id = ?'''
+    params = (config.SCHOOL_ID,)
+    school = db.run_query(SCHOOL_QUERY, cursor, params)
+    api_url = school['api_url']
 
-    ref_date = Dates.semester_last_sunday - datetime.timedelta(weeks=4)
+    # Used for testing, delete later
+    ref_date = config.REF_DATE
 
-    # Get the instructor
-    INSTRUCTORS = '''SELECT * FROM instructors;'''
-    instructors = db.run_query(INSTRUCTORS, cursor)
+    # Get the instructors who have active course instances
+    INSTRUCTORS_QUERY = '''SELECT i.* 
+                            FROM instructors i JOIN schools s on i.school_id = s.id 
+                                JOIN course_instances ci on ci.instructor_id = i.id
+                            WHERE s.id = ?;'''
+    params = (config.SCHOOL_ID,)
+    instructors = db.run_query(INSTRUCTORS_QUERY, cursor, params)
+    logger.info(f'{len(instructors)} instructors found in db with active course instance')
     for i in instructors:
         # Connect to the instructors Canvas account
-        api_token = i['api_token']
-        lms = config.load_lms(api_url, api_token)
-        instructor_dict = lms.get_instructor()
-        instructor = Instructor(name=instructor_dict['name'],
-                                email=instructor_dict['email'],
-                                lms_id=instructor_dict['lms_id'])
-        INSTRUCTOR_COURSES = f'''SELECT DISTINCT course_instances.canvas_id, name FROM 
-                                    course_instances JOIN courses ON course_instances.course = courses.id 
-                                    WHERE instructor=?'''
-        params = [i['id']]
+        lms_token = i['lms_token']
+        lms_obj = LmsClass(config.LMS_URL, lms_token, api_url)
+
+        # Create the instructor object from db info and grab all their courses from db
+        instructor = Instructor(first_name=i['first_name'],
+                                last_name=i['last_name'],
+                                email=i['email'],
+                                lms_id=i['lms_id'])
+        INSTRUCTOR_COURSES = f'''SELECT DISTINCT ci.canvas_id, c.name 
+                                FROM course_instances ci JOIN courses c ON course_instances.course = courses.id 
+                                WHERE instructor_id = ?'''
+        params = (i['id'],)
         instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor, params)
-        instructor.add_courses([Course(course_id=c['canvas_id'], name=c['name']) for c in instructor_courses_dict])
-        # courses_dict = lms.get_courses_by_instructor(instructor, config.semester)
-        # instructor.add_courses([Course(c['id'], c['name']) for c in courses_dict])
+        instructor.add_courses([Course(lms_id=c['canvas_id'], name=c['name']) for c in instructor_courses_dict])
 
         for course in instructor.courses:
             # Get the students, enrollments, assigments, and grades for this course
-            students_dict = lms.get_students_in_course(course)
+            students_dict = lms_obj.get_students_in_course(course.lms_id)
             students = [Student(student['name'], student['lms_id']) for student in students_dict]
             course.add_students(students)
 
-            assignments_dict = lms.get_course_assignments(course)
-            # Check to make sure the course actually has assignments (for example, 4157 should be skipped)
+            assignments_dict = lms_obj.get_course_assignments(course.lms_id)
+            # Check to make sure the course actually has assignments (for example, MATH 4157 does not),
+            # then add them to the course object
             if not assignments_dict:
                 assignments = []
             else:
@@ -65,8 +73,11 @@ if __name__ == '__main__':
                                           course) for assignment in assignments_dict]
             course.add_assignments(assignments)
 
-            grades_dict = lms.get_course_grades(course, students, assignments)
-            current_scores_dict = lms.get_current_scores(course)
+            # Get grades for all assignments
+            grades_dict = lms_obj.get_course_grades(course.lms_id, students, assignments)
+            # Get overall grades for all students (cumulative grade)
+            current_scores_dict = lms_obj.get_current_scores(course.lms_id)
+            # Create an Enrollment object for each student with all of their assignments, along with their current grade
             for student in students:
                 enrollment = Enrollment(student, course, current_score=current_scores_dict.get(student.lms_id))
                 student_grades = []
@@ -86,7 +97,7 @@ if __name__ == '__main__':
             for student in course.students:
                 # Create CI's for each student -> floats
                 enrollment = student.get_enrollment_by_course(course)
-                enrollment.form_ci(distribution=config.distribution)
+                enrollment.form_ci(distribution=config.DISTRIBUTION)
 
                 # Look for new good/bad results -> Assignments
                 outlier_assignments = enrollment.get_outliers(ref_date=ref_date)
@@ -94,12 +105,12 @@ if __name__ == '__main__':
                 # Create student summary -> list of Assignments
                 if outlier_assignments:
                     course_outliers[enrollment] = outlier_assignments
-                    if config.commit_outliers_to_db:
+                    if config.COMMIT_OUTLIERS_TO_DB:
                         enrollment.commit_outliers_to_db(outlier_assignments, cursor, conn)
 
             # Create class summary (mean/median class grade)
-            summary_stat = config.course_summary_stat
-            summary_stat_value = lms.get_course_grade_summary(course, summary_stat=summary_stat)
+            summary_stat = config.COURSE_SUMMARY_STAT
+            summary_stat_value = lms_obj.get_course_grade_summary(course.lms_id, summary_stat)
             course_summary = {'summary_stat': summary_stat, 'summary_stat_value': summary_stat_value}
 
             # Craft (email) card for this course
@@ -115,3 +126,7 @@ if __name__ == '__main__':
                         }
         email = instructor.render_email(context_dict, env)
         instructor.send_email(email)
+        logger.info(f'{len(instructor.courses)} courses processed for instructor {instructor.email}')
+
+    return {'statusCode': 200,
+            'body': json.dumps(f'{len(instructors)} emails sent')}

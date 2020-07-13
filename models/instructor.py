@@ -2,8 +2,9 @@ from utils.models import add_to_list, remove_from_list
 
 
 class Instructor:
-    def __init__(self, name, email, lms_id, courses=None, profile_pic=None):
-        self.name = name
+    def __init__(self, first_name, last_name, email, lms_id, courses=None, profile_pic=None):
+        self.first_name = first_name
+        self.last_name = last_name
         self.email = email
         self.lms_id = lms_id
         self.courses = courses

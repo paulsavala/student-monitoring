@@ -1,4 +1,5 @@
-import sqlite3
+import psycopg2
+from logzero import logger
 
 
 def dict_factory(cursor, row):
@@ -8,23 +9,23 @@ def dict_factory(cursor, row):
     return d
 
 
-def create_connection(db):
+def create_connection(db, user, password):
     conn = None
     try:
-        conn = sqlite3.connect(db)
+        conn = psycopg2.connect(db, user, password)
         conn.row_factory = dict_factory
-    except sqlite3.Error as e:
-        print(e)
-        raise sqlite3.Error(f'Database {db} does not exist')
+    except psycopg2.Error as e:
+        logger.error(e)
+        raise psycopg2.Error('Database connection failed')
     return conn
 
 
 def create_cursor(conn):
     try:
         cursor = conn.cursor()
-    except sqlite3.Error as e:
-        print(e)
-        raise sqlite3.Error('Could not create a cursor')
+    except psycopg2.Error as e:
+        logger.error(e)
+        raise psycopg2.Error('Could not create a cursor')
     return cursor
 
 

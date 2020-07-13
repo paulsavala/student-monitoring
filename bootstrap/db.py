@@ -2,12 +2,7 @@ import os
 
 
 def bootstrap(config, db):
-    if not os.path.exists(config.db_file):
-        # Create an empty db file
-        with open(config.db_file, 'w'):
-            pass
-
-    conn = db.create_connection(config.db_file)
+    conn = db.create_connection(config.DB_ENDPOINT, config.DB_USERNAME, os.environ['DB_PASSWORD'])
     cursor = db.create_cursor(conn)
 
     CREATE_SCHOOL_TABLE = '''
@@ -15,7 +10,8 @@ def bootstrap(config, db):
             id INTEGER PRIMARY KEY,
             name VARCHAR(256) NOT NULL,
             city VARCHAR(128) NOT NULL,
-            state VARCHAR(2) NOT NULL
+            state VARCHAR(2) NOT NULL,
+            api_url VARCHAR(256)
         );
     '''
     CREATE_COLLEGE_OF_TABLE = '''
@@ -33,7 +29,6 @@ def bootstrap(config, db):
             id INTEGER PRIMARY KEY,
             long_name VARCHAR(256) NOT NULL,
             short_name VARCHAR(16) NOT NULL UNIQUE,
-            college VARCHAR(128),
             
             school_id INTEGER NOT NULL,
             college_of_id INTEGER NOT NULL,
@@ -41,19 +36,19 @@ def bootstrap(config, db):
             FOREIGN KEY (college_of_id) REFERENCES college_of(id)
         );
     '''
-    # instructor.id is a varchar to support flask_login, which requires this
     CREATE_INSTRUCTOR_TABLE = '''
         CREATE TABLE IF NOT EXISTS instructors (
-            id VARCHAR(256) PRIMARY KEY,
-            first_name VARCHAR(64) NOT NULL,
-            last_name VARCHAR(64) NOT NULL,
-            email VARCHAR(128) NOT NULL UNIQUE,
-            api_token VARCHAR(128),
+            id INTEGER PRIMARY KEY,
+            first_name VARCHAR(64),
+            last_name VARCHAR(64),
+            email VARCHAR(128) UNIQUE,
+            lms_id VARCHAR(1024),
+            lms_token VARCHAR(128),
             is_admin BOOLEAN DEFAULT FALSE,
-            registered BOOLEAN DEFAULT FALSE,
+            is_registered BOOLEAN DEFAULT FALSE,
             
-            department_id INTEGER NOT NULL,
-            school_id INTEGER NOT NULL,
+            department_id INTEGER,
+            school_id INTEGER,
             FOREIGN KEY (department_id) REFERENCES departments(id),
             FOREIGN KEY (school_id) REFERENCES schools(id)
         );
@@ -61,7 +56,8 @@ def bootstrap(config, db):
     CREATE_COURSE_TABLE = '''
             CREATE TABLE IF NOT EXISTS courses (
                 id INTEGER PRIMARY KEY,
-                name VARCHAR(256) NOT NULL,
+                name VARCHAR(256),
+                department_short_name VARCHAR(16),
                 number INTEGER NOT NULL,
                 
                 department_id INTEGER NOT NULL,
@@ -75,9 +71,10 @@ def bootstrap(config, db):
                     season VARCHAR(64),
                     year INTEGER,
                     section VARCHAR(64),
+                    auto_email BOOLEAN DEFAULT FALSE,
                     
                     course_id INTEGER NOT NULL,
-                    instructor_id INTEGER NOT NULL,
+                    instructor_id INTEGER,
                     department_id INTEGER NOT NULL,
                     FOREIGN KEY (course_id) REFERENCES courses(id),
                     FOREIGN KEY (instructor_id) REFERENCES instructors(id),
@@ -87,17 +84,17 @@ def bootstrap(config, db):
     CREATE_OUTLIERS_TABLE = '''
                 CREATE TABLE IF NOT EXISTS outliers (
                     id INTEGER PRIMARY KEY,
-                    student_name VARCHAR(128) NOT NULL,
-                    student_lms_id VARCHAR(128) NOT NULL,
-                    assignment_name VARCHAR(128) NOT NULL,
+                    student_id VARCHAR(128),
+                    assignment_name VARCHAR(128),
                     course_lms_id VARCHAR(128) NOT NULL,
                     ci_left FLOAT NOT NULL,
                     ci_right FLOAT NOT NULL,
                     assignment_score FLOAT NOT NULL,
-                    due_date TIMESTAMP NOT NULL
+                    due_date TIMESTAMP
                 );
                 '''
     db.run_query(CREATE_SCHOOL_TABLE, cursor)
+    db.run_query(CREATE_COLLEGE_OF_TABLE, cursor)
     db.run_query(CREATE_DEPARTMENT_TABLE, cursor)
     db.run_query(CREATE_INSTRUCTOR_TABLE, cursor)
     db.run_query(CREATE_COURSE_TABLE, cursor)
@@ -105,30 +102,30 @@ def bootstrap(config, db):
     db.run_query(CREATE_OUTLIERS_TABLE, cursor)
 
     CREATE_INITIAL_SCHOOL = '''
-        INSERT INTO schools (name, city, state)
-        SELECT "ST. EDWARD'S UNIVERSITY", 'AUSTIN', 'TX'
+        INSERT INTO schools (id, name, city, state, api_url)
+        SELECT 1, "ST. EDWARD'S UNIVERSITY", 'AUSTIN', 'TX', 'https://stedwards.instructure.com/'
         WHERE NOT EXISTS (SELECT 1 FROM schools WHERE name="ST. EDWARD'S UNIVERSITY");
     '''
+    CREATE_INITIAL_NSCI = '''
+            INSERT INTO college_of (id, long_name, short_name, school_id)
+            SELECT 1, 'SCHOOL OF NATURAL SCIENCES', 'NSCI', 1
+            WHERE NOT EXISTS (SELECT 1 FROM schools WHERE name="ST. EDWARD'S UNIVERSITY");
+        '''
     CREATE_MATH_DEPARTMENT = '''
-            INSERT INTO departments (long_name, short_name, college, school)
-            SELECT "MATHEMATICS", 'MATH', 'NATURAL SCIENCE', 1
-            WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="MATH");
+            INSERT INTO departments (long_name, short_name, college_of_id, school_id)
+            SELECT 'MATHEMATICS', 'MATH', 1, 1
+            WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="MATH" AND school_id=1);
         '''
     CREATE_CS_DEPARTMENT = '''
-                INSERT INTO departments (long_name, short_name, college, school)
-                SELECT "COMPUTER SCIENCE", 'CSCI', 'NATURAL SCIENCE', 1
-                WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="CSCI");
+                INSERT INTO departments (long_name, short_name, college_of_id, school_id)
+                SELECT 'COMPUTER SCIENCE', 'CS', 1, 1
+                WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="CS" AND school_id=1);
             '''
-    CREATE_BIOLOGY_DEPARTMENT = '''
-                    INSERT INTO departments (long_name, short_name, college, school)
-                    SELECT "BIOLOGY", 'BIO', 'NATURAL SCIENCE', 1
-                    WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="BIO");
-                '''
 
     db.run_query(CREATE_INITIAL_SCHOOL, cursor)
+    db.run_query(CREATE_INITIAL_NSCI, cursor)
     db.run_query(CREATE_MATH_DEPARTMENT, cursor)
     db.run_query(CREATE_CS_DEPARTMENT, cursor)
-    db.run_query(CREATE_BIOLOGY_DEPARTMENT, cursor)
     conn.commit()
 
     return conn, cursor
