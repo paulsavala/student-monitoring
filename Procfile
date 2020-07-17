@@ -1,1 +1,1 @@
-web: gunicorn app:app
+student_monitoring_backend: python app.py
