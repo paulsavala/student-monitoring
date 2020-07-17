@@ -111,7 +111,7 @@ def bootstrap(config, db):
     CREATE_INITIAL_NSCI = '''
             INSERT INTO college_of (id, long_name, short_name, school_id)
             SELECT 1, 'SCHOOL OF NATURAL SCIENCES', 'NSCI', 1
-            WHERE NOT EXISTS (SELECT 1 FROM schools WHERE name='ST. EDWARD'S UNIVERSITY');
+            WHERE NOT EXISTS (SELECT 1 FROM schools WHERE name='ST EDWARDS UNIVERSITY');
         '''
     CREATE_MATH_DEPARTMENT = '''
             INSERT INTO departments (long_name, short_name, college_of_id, school_id)
