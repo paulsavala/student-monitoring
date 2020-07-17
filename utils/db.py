@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2.extras import DictCursor
 from logzero import logger
 
 
@@ -12,7 +13,7 @@ from logzero import logger
 def create_connection(db_url):
     conn = None
     try:
-        conn = psycopg2.connect(db_url, sslmode='require', cursor_factory=psycopg2.extras.DictCursor)
+        conn = psycopg2.connect(db_url, sslmode='require', cursor_factory=DictCursor)
     except psycopg2.Error as e:
         logger.error(e)
         raise psycopg2.Error('Database connection failed')
