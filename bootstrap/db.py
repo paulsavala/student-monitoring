@@ -105,23 +105,23 @@ def bootstrap(config, db):
 
     CREATE_INITIAL_SCHOOL = '''
         INSERT INTO schools (id, name, city, state, api_url)
-        SELECT 1, "ST. EDWARD'S UNIVERSITY", 'AUSTIN', 'TX', 'https://stedwards.instructure.com/'
-        WHERE NOT EXISTS (SELECT 1 FROM schools WHERE name="ST. EDWARD'S UNIVERSITY");
+        SELECT 1, 'ST EDWARDS UNIVERSITY', 'AUSTIN', 'TX', 'https://stedwards.instructure.com/'
+        WHERE NOT EXISTS (SELECT 1 FROM schools WHERE name='ST EDWARDS UNIVERSITY');
     '''
     CREATE_INITIAL_NSCI = '''
             INSERT INTO college_of (id, long_name, short_name, school_id)
             SELECT 1, 'SCHOOL OF NATURAL SCIENCES', 'NSCI', 1
-            WHERE NOT EXISTS (SELECT 1 FROM schools WHERE name="ST. EDWARD'S UNIVERSITY");
+            WHERE NOT EXISTS (SELECT 1 FROM schools WHERE name='ST. EDWARD'S UNIVERSITY');
         '''
     CREATE_MATH_DEPARTMENT = '''
             INSERT INTO departments (long_name, short_name, college_of_id, school_id)
             SELECT 'MATHEMATICS', 'MATH', 1, 1
-            WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="MATH" AND school_id=1);
+            WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name='MATH' AND school_id=1);
         '''
     CREATE_CS_DEPARTMENT = '''
                 INSERT INTO departments (long_name, short_name, college_of_id, school_id)
                 SELECT 'COMPUTER SCIENCE', 'CS', 1, 1
-                WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name="CS" AND school_id=1);
+                WHERE NOT EXISTS (SELECT 1 FROM departments WHERE short_name='CS' AND school_id=1);
             '''
 
     db.run_query(CREATE_INITIAL_SCHOOL, cursor)

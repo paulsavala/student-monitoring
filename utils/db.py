@@ -3,13 +3,6 @@ from psycopg2.extras import DictCursor
 from logzero import logger
 
 
-# def dict_factory(cursor, row):
-#     d = {}
-#     for idx, col in enumerate(cursor.description):
-#         d[col[0]] = row[idx]
-#     return d
-
-
 def create_connection(db_url):
     conn = None
     try:
