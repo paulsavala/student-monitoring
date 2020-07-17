@@ -50,8 +50,8 @@ if __name__ == '__main__':
                                 last_name=i['last_name'],
                                 email=i['email'],
                                 lms_id=i['lms_id'])
-        INSTRUCTOR_COURSES = f'''SELECT DISTINCT ci.canvas_id, c.name 
-                                FROM course_instances ci JOIN courses c ON course_instances.course = courses.id 
+        INSTRUCTOR_COURSES = f'''SELECT DISTINCT lms_id, name 
+                                FROM courses
                                 WHERE instructor_id = %s'''
         params = (i['id'],)
         instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor, params)

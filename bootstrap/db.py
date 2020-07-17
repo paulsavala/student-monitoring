@@ -59,41 +59,30 @@ def bootstrap(config, db):
         CREATE_COURSE_TABLE = '''
                 CREATE TABLE IF NOT EXISTS courses (
                     id SERIAL PRIMARY KEY,
-                    name VARCHAR(256),
-                    department_short_name VARCHAR(16),
-                    number INTEGER NOT NULL,
+                    lms_id VARCHAR(1024),
+                    season VARCHAR(64),
+                    year INTEGER,
+                    short_name VARCHAR(64),
+                    long_name VARCHAR(256),
+                    is_monitored BOOLEAN DEFAULT FALSE,
+                    auto_email BOOLEAN DEFAULT FALSE,
                     
-                    department_id INTEGER NOT NULL,
-                    FOREIGN KEY (department_id) REFERENCES departments(id)
+                    instructor_id INTEGER,
+                    FOREIGN KEY (instructor_id) REFERENCES instructors(id)
                 );
                 '''
-        CREATE_COURSE_INSTANCE_TABLE = '''
-                    CREATE TABLE IF NOT EXISTS course_instances (
-                        id SERIAL PRIMARY KEY,
-                        lms_id VARCHAR(1024) UNIQUE,
-                        season VARCHAR(64),
-                        year INTEGER,
-                        section VARCHAR(64),
-                        auto_email BOOLEAN DEFAULT FALSE,
-                        
-                        course_id INTEGER NOT NULL,
-                        instructor_id INTEGER,
-                        department_id INTEGER NOT NULL,
-                        FOREIGN KEY (course_id) REFERENCES courses(id),
-                        FOREIGN KEY (instructor_id) REFERENCES instructors(id),
-                        FOREIGN KEY (department_id) REFERENCES departments(id)
-                    );
-                    '''
         CREATE_OUTLIERS_TABLE = '''
                     CREATE TABLE IF NOT EXISTS outliers (
                         id SERIAL PRIMARY KEY,
                         student_id VARCHAR(128),
                         assignment_name VARCHAR(128),
-                        course_lms_id VARCHAR(128) NOT NULL,
                         ci_left FLOAT NOT NULL,
                         ci_right FLOAT NOT NULL,
                         assignment_score FLOAT NOT NULL,
-                        due_date TIMESTAMP
+                        due_date TIMESTAMP,
+                        
+                        course_id INTEGER,
+                        FOREIGN KEY (course_id) REFERENCES courses(id)                       
                     );
                     '''
         db.run_query(CREATE_SCHOOL_TABLE, cursor)
@@ -101,7 +90,6 @@ def bootstrap(config, db):
         db.run_query(CREATE_DEPARTMENT_TABLE, cursor)
         db.run_query(CREATE_INSTRUCTOR_TABLE, cursor)
         db.run_query(CREATE_COURSE_TABLE, cursor)
-        db.run_query(CREATE_COURSE_INSTANCE_TABLE, cursor)
         db.run_query(CREATE_OUTLIERS_TABLE, cursor)
 
         CREATE_INITIAL_SCHOOL = '''
