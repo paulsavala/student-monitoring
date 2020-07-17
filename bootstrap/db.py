@@ -1,9 +1,11 @@
-import os
+from logzero import logger
 
 
 def bootstrap(config, db):
-    conn = db.create_connection(config.DB_ENDPOINT, config.DB_USERNAME, os.environ['DB_PASSWORD'])
+    logger.info('Starting bootstrapping db...')
+    conn = db.create_connection(config.DB_ENDPOINT)
     cursor = db.create_cursor(conn)
+
 
     CREATE_SCHOOL_TABLE = '''
         CREATE TABLE IF NOT EXISTS schools (
@@ -127,5 +129,6 @@ def bootstrap(config, db):
     db.run_query(CREATE_MATH_DEPARTMENT, cursor)
     db.run_query(CREATE_CS_DEPARTMENT, cursor)
     conn.commit()
+    logger.info('Database bootstrapped')
 
     return conn, cursor

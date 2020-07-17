@@ -1,7 +1,6 @@
 .pyc
 .idea
-notebooks
 *.db
-venv
+venv/
 .ipynb_checkpoints
 __pycache__

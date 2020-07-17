@@ -9,10 +9,10 @@ def dict_factory(cursor, row):
     return d
 
 
-def create_connection(db, user, password):
+def create_connection(db_url):
     conn = None
     try:
-        conn = psycopg2.connect(db, user, password)
+        conn = psycopg2.connect(db_url, sslmode='require')
         conn.row_factory = dict_factory
     except psycopg2.Error as e:
         logger.error(e)

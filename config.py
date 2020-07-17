@@ -1,11 +1,12 @@
 from stats.beta import BetaDistribution
+
 import datetime
+import os
 
 
 class Config:
     ENV = 'DEV'
     DB_ENDPOINT = None
-    DB_USERNAME = None
     LMS = None
     COURSE_SUMMARY_STAT = 'median'  # or 'mean'
     COMMIT_OUTLIERS_TO_DB = False
@@ -29,8 +30,7 @@ class StEdwardsConfig(Config):
     LMS = 'Canvas'
 
     # DB credentials
-    DB_ENDPOINT = 'student-monitoring-prod-db.cdchqhkfi2bg.us-east-1.rds.amazonaws.com'
-    DB_USERNAME = 'admin_prod'
+    DB_ENDPOINT = os.environ['DATABASE_URL']
 
     # Used for testing
     semester_first_sunday = datetime.datetime(2020, 1, 19)

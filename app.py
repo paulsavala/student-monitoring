@@ -17,6 +17,7 @@ from logzero import logger
 
 
 if __name__ == '__main__':
+    logger.info('Starting...')
     config = StEdwardsConfig
 
     # Bootstrap if needed and get the connection and a cursor
@@ -25,9 +26,11 @@ if __name__ == '__main__':
     params = (config.SCHOOL_ID,)
     school = db.run_query(SCHOOL_QUERY, cursor, params)
     api_url = school['api_url']
+    logger.info('School api url retrieved')
 
     # Used for testing, delete later
     ref_date = config.REF_DATE
+    logger.info(f'Using ref_date {ref_date}')
 
     # Get the instructors who have active course instances
     INSTRUCTORS_QUERY = '''SELECT i.* 
