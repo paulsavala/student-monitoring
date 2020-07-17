@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     # Bootstrap if needed and get the connection and a cursor
     conn, cursor = bootstrap(config, db)
-    SCHOOL_QUERY = '''SELECT api_url FROM schools WHERE id = ?'''
+    SCHOOL_QUERY = '''SELECT api_url FROM schools WHERE id = %s'''
     params = (config.SCHOOL_ID,)
     school = db.run_query(SCHOOL_QUERY, cursor, params)
     api_url = school['api_url']
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     INSTRUCTORS_QUERY = '''SELECT i.* 
                             FROM instructors i JOIN schools s on i.school_id = s.id 
                                 JOIN course_instances ci on ci.instructor_id = i.id
-                            WHERE s.id = ?;'''
+                            WHERE s.id = %s;'''
     params = (config.SCHOOL_ID,)
     instructors = db.run_query(INSTRUCTORS_QUERY, cursor, params)
     logger.info(f'{len(instructors)} instructors found in db with active course instance')
@@ -52,7 +52,7 @@ if __name__ == '__main__':
                                 lms_id=i['lms_id'])
         INSTRUCTOR_COURSES = f'''SELECT DISTINCT ci.canvas_id, c.name 
                                 FROM course_instances ci JOIN courses c ON course_instances.course = courses.id 
-                                WHERE instructor_id = ?'''
+                                WHERE instructor_id = %s'''
         params = (i['id'],)
         instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor, params)
         instructor.add_courses([Course(lms_id=c['canvas_id'], name=c['name']) for c in instructor_courses_dict])
