@@ -24,7 +24,7 @@ if __name__ == '__main__':
     conn, cursor = bootstrap(config, db)
     SCHOOL_QUERY = '''SELECT api_url FROM schools WHERE id = %s'''
     params = (config.SCHOOL_ID,)
-    school = db.run_query(SCHOOL_QUERY, cursor, params)
+    school = db.run_query(SCHOOL_QUERY, cursor, params)[0]
     api_url = school['api_url']
     logger.info('School api url retrieved')
 
