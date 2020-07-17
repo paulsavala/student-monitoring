@@ -34,4 +34,8 @@ def run_query(query, cursor, params=None):
         cursor.execute(query, params)
     else:
         cursor.execute(query)
-    return cursor.fetchall()
+    try:
+        results = cursor.fetchall()
+        return results
+    except psycopg2.ProgrammingError:
+        pass
