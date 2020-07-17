@@ -34,8 +34,7 @@ if __name__ == '__main__':
 
     # Get the instructors who have active course instances
     INSTRUCTORS_QUERY = '''SELECT i.* 
-                            FROM instructors i JOIN schools s on i.school_id = s.id 
-                                JOIN course_instances ci on ci.instructor_id = i.id
+                            FROM instructors i JOIN schools s on i.school_id = s.id
                             WHERE s.id = %s;'''
     params = (config.SCHOOL_ID,)
     instructors = db.run_query(INSTRUCTORS_QUERY, cursor, params)
