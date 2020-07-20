@@ -14,6 +14,7 @@ from lms.lms import Canvas as LmsClass
 from collections import defaultdict
 import datetime
 from logzero import logger
+import os
 
 
 if __name__ == '__main__':
@@ -28,14 +29,16 @@ if __name__ == '__main__':
     api_url = school['api_url']
     logger.info('School api url retrieved')
 
-    # Used for testing, delete later
-    ref_date = config.REF_DATE
-    logger.info(f'Using ref_date {ref_date}')
+    # Used for testing
+    ref_date = os.environ.get('REF_DATE')
+    if ref_date is not None:
+        logger.info(f'Using ref_date {ref_date}')
 
     # Get the instructors who have active course instances
-    INSTRUCTORS_QUERY = '''SELECT i.* 
-                            FROM instructors i JOIN schools s on i.school_id = s.id
-                            WHERE s.id = %s;'''
+    INSTRUCTORS_QUERY = '''SELECT DISTINCT i.* 
+                            FROM instructors i JOIN schools s on i.school_id=s.id
+                            JOIN courses c on c.instructor_id=i.id
+                            WHERE s.id = %s AND c.is_monitored=TRUE;'''
     params = (config.SCHOOL_ID,)
     instructors = db.run_query(INSTRUCTORS_QUERY, cursor, params)
     logger.info(f'{len(instructors)} instructors found in db with active course instance')
@@ -50,8 +53,8 @@ if __name__ == '__main__':
                                 email=i['email'],
                                 lms_id=i['lms_id'])
         INSTRUCTOR_COURSES = f'''SELECT DISTINCT lms_id, name 
-                                FROM courses
-                                WHERE instructor_id = %s'''
+                                 FROM courses
+                                 WHERE instructor_id = %s'''
         params = (i['id'],)
         instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor, params)
         instructor.add_courses([Course(lms_id=c['canvas_id'], name=c['name']) for c in instructor_courses_dict])
@@ -101,7 +104,10 @@ if __name__ == '__main__':
                 enrollment.form_ci(distribution=config.DISTRIBUTION)
 
                 # Look for new good/bad results -> Assignments
-                outlier_assignments = enrollment.get_outliers(ref_date=ref_date)
+                if ref_date is not None:
+                    outlier_assignments = enrollment.get_outliers(ref_date=ref_date)
+                else:
+                    outlier_assignments = enrollment.get_outliers()
 
                 # Create student summary -> list of Assignments
                 if outlier_assignments:
@@ -122,8 +128,8 @@ if __name__ == '__main__':
         # Send email
         context_dict = {'context_dicts': course_context_dicts,
                         'instructor': instructor,
-                        'current_date': datetime.datetime.now(),
-                        'week_start': datetime.datetime.now() - datetime.timedelta(days=6)
+                        'current_date': datetime.datetime.now() - datetime.timedelta(days=1),
+                        'week_start': datetime.datetime.now() - datetime.timedelta(days=8)
                         }
         email = instructor.render_email(context_dict, env)
         instructor.send_email(email)

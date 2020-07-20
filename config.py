@@ -7,7 +7,6 @@ import os
 class Config:
     ENV = 'DEV'
     DB_ENDPOINT = None
-    LMS = None
     COURSE_SUMMARY_STAT = 'median'  # or 'mean'
     COMMIT_OUTLIERS_TO_DB = False
 
@@ -26,8 +25,8 @@ class StEdwardsConfig(Config):
     # COMMIT_OUTLIERS_TO_DB = True
     # Used for getting current courses from LMS
     SEMESTER = 'Spring 2020'
-    # LMS name, needed when invoking the Lambda function lms_api
-    LMS = 'Canvas'
+    # Email address to show in "from" field
+    FROM_EMAIL = 'psavala@stedwards.edu'
 
     # DB credentials
     DB_ENDPOINT = os.environ['DATABASE_URL']
