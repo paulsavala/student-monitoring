@@ -8,7 +8,7 @@ from models.instructor import Instructor
 from models.student import Student
 from models.enrollment import Enrollment
 from models.grade import Grade
-from config import GenericConfig
+import config
 
 from collections import defaultdict
 import datetime
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     logger.info('Starting...')
 
     # Bootstrap if needed and get the connection and a cursor
-    conn, cursor = bootstrap(GenericConfig.DB_ENDPOINT, db)
+    conn, cursor = bootstrap(config.GenericConfig.DB_ENDPOINT, db)
     # Get all schools
     SCHOOL_QUERY = 'SELECT DISTINCT id FROM schools;'
     schools = db.run_query(SCHOOL_QUERY, cursor)
