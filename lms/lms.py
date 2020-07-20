@@ -49,7 +49,7 @@ class Canvas(GenericLMS):
     def do_post(self, resource, params=None, data=None):
         # Send the appropriate lms url and token, along with requested params/data
         url = self._form_endpoint(resource)
-        if not data:
+        if data is None:
             data = dict()
         data.update({'lms_token': self.lms_token})
         data = json.dumps(data)
