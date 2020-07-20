@@ -30,9 +30,9 @@ if __name__ == '__main__':
         school_info = db.run_query(SCHOOL_API_QUERY, cursor, params)
         if len(school_info) > 1:
             logger.error(f'Multiple entries found for school with id {school_id["id"]}, using first')
-            school_api_url = school_api_url[0]
+            school_info = school_info[0]
         config = getattr(config, school_info['config_class_name'])
-        api_url = school_api_url['api_url']
+        api_url = school_info['api_url']
         logger.info('School api url retrieved')
 
         # Get the school LMS
