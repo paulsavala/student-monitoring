@@ -53,6 +53,7 @@ class Canvas(GenericLMS):
             data = dict()
         data.update({'lms_token': self.lms_token})
         data = json.dumps(data)
+        print(data)
         if params is not None:
             resp = requests.post(url, params=params, json=data)
         else:
@@ -68,19 +69,19 @@ class Canvas(GenericLMS):
         assert isinstance(instructor_lms_id, int) or isinstance(instructor_lms_id, str), \
             'instructor_lms_id must be an integer or string'
         data = {'semester': semester, 'instructor_lms_id': instructor_lms_id}
-        resp = self.do_post('get_courses_by_instructor', json=data)
+        resp = self.do_post('get_courses_by_instructor', data=data)
         return resp
 
     def get_students_in_course(self, course_lms_id):
         assert isinstance(course_lms_id, int) or isinstance(course_lms_id, str), 'course_id must be an integer or string'
         data = {'course_lms_id': course_lms_id}
-        resp = self.do_post('get_students_in_course', json=data)
+        resp = self.do_post('get_students_in_course', data=data)
         return resp
 
     def get_course_assignments(self, course_lms_id):
         assert isinstance(course_lms_id, int) or isinstance(course_lms_id, str), 'course_lms_id must be an integer or string'
         data = {'course_lms_id': course_lms_id}
-        resp = self.do_post('get_course_assignments', json=data)
+        resp = self.do_post('get_course_assignments', data=data)
         return resp
 
     def get_course_grades(self, course_lms_id, students):
@@ -88,14 +89,14 @@ class Canvas(GenericLMS):
         assert isinstance(students, list), 'student_ids must be a list'
 
         data = {'course_lms_id': course_lms_id, 'students': students}
-        resp = self.do_post('get_course_grades', json=data)
+        resp = self.do_post('get_course_grades', data=data)
         return resp
 
     def get_current_scores(self, course_lms_id):
         assert isinstance(course_lms_id, int) or isinstance(course_lms_id, str), 'course_lms_id must be an integer or string'
 
         data = {'course_lms_id': course_lms_id}
-        resp = self.do_post('get_current_scores', json=data)
+        resp = self.do_post('get_current_scores', data=data)
         return resp
 
     def get_student_grades(self, course_lms_id, student):
@@ -103,7 +104,7 @@ class Canvas(GenericLMS):
         assert isinstance(student, int) or isinstance(student, str), 'student_id must be an integer or string'
 
         data = {'course_lms_id': course_lms_id, 'student_id': student}
-        resp = self.do_post('get_student_grades', json=data)
+        resp = self.do_post('get_student_grades', data=data)
         return resp
 
     def get_course_grade_summary(self, course_lms_id, summary_stat):
@@ -112,5 +113,5 @@ class Canvas(GenericLMS):
             'summary_stat must be one of "mean" or "median"'
 
         data = {'course_lms_id': course_lms_id, 'summary_stat': summary_stat}
-        resp = self.do_post('get_course_grade_summary', json=data)
+        resp = self.do_post('get_course_grade_summary', data=data)
         return resp
