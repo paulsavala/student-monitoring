@@ -42,6 +42,11 @@ if __name__ == '__main__':
         ref_date = os.environ.get('REF_DATE')
         if ref_date is not None:
             logger.info(f'Using ref_date {ref_date}')
+            try:
+                ref_date = datetime.datetime.strptime(ref_date, '%Y-%m-%d')
+            except ValueError as e:
+                logger.error(f'Invalid ref_date. Must be in the form %Y-%m-%d, ignoring')
+                ref_date = None
 
         # Get the instructors who have active course instances
         INSTRUCTORS_QUERY = '''SELECT DISTINCT i.* 
