@@ -78,14 +78,10 @@ if __name__ == '__main__':
                 print(course.short_name)
                 # Get the students, enrollments, assigments, and grades for this course
                 students_dict = lms_obj.get_students_in_course(course.lms_id)
-                print('Students')
-                print(students_dict)
                 students = [Student(student['name'], student['lms_id']) for student in students_dict]
                 course.add_students(students)
 
                 assignments_dict = lms_obj.get_course_assignments(course.lms_id)
-                print('Assignments')
-                print(assignments_dict)
                 # Check to make sure the course actually has assignments (for example, MATH 4157 does not),
                 # then add them to the course object
                 if not assignments_dict:
@@ -98,13 +94,9 @@ if __name__ == '__main__':
                 course.add_assignments(assignments)
 
                 # Get grades for all assignments
-                grades_dict = lms_obj.get_course_grades(course.lms_id, students, assignments)
-                print('Grades')
-                print(grades_dict)
+                grades_dict = lms_obj.get_course_grades(course.lms_id, students)
                 # Get overall grades for all students (cumulative grade)
                 current_scores_dict = lms_obj.get_current_scores(course.lms_id)
-                print('Current scores')
-                print(current_scores_dict)
                 # Create an Enrollment object for each student with all of their assignments, along with their current grade
                 for student in students:
                     enrollment = Enrollment(student, course, current_score=current_scores_dict.get(student.lms_id))
