@@ -26,10 +26,10 @@ if __name__ == '__main__':
     schools = db.run_query(SCHOOL_QUERY, cursor)
     for school_id in schools:
         SCHOOL_API_QUERY = '''SELECT DISTINCT api_url, config_class_name FROM schools WHERE id = %s;'''
-        params = (schools['id'],)
+        params = (school_id['id'],)
         school_info = db.run_query(SCHOOL_API_QUERY, cursor, params)
         if len(school_info) > 1:
-            logger.error(f'Multiple entries found for school with id {school_id}, using first')
+            logger.error(f'Multiple entries found for school with id {school_id["id"]}, using first')
             school_api_url = school_api_url[0]
         config = getattr(config, school_info['config_class_name'])
         api_url = school_api_url['api_url']
