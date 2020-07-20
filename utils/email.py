@@ -4,7 +4,7 @@ from sendgrid.helpers import mail as sg_mail
 import os
 
 
-sg_client = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+sg_client = sendgrid.SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
 
 
 def send_email(from_email, to_email, subject, content):
