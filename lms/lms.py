@@ -50,13 +50,14 @@ class Canvas(GenericLMS):
     def do_post(self, resource, params=None, data=None):
         # Send the appropriate lms url and token, along with requested params/data
         url = self._form_endpoint(resource)
-        if not params:
-            params = dict()
         if not data:
             data = dict()
         data.update({'lms_token': self.lms_token})
         data = json.dumps(data)
-        resp = requests.post(url, params=params, data=data)
+        if params is not None:
+            resp = requests.post(url, params=params, data=data)
+        else:
+            resp = requests.post(url, data=data)
         return resp
 
     def get_instructor(self):
