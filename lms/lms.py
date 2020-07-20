@@ -53,12 +53,11 @@ class Canvas(GenericLMS):
             data = dict()
         data.update({'lms_token': self.lms_token})
         data = json.dumps(data)
-        print(data)
         if params is not None:
             resp = requests.post(url, params=params, json=data)
         else:
             resp = requests.post(url, json=data)
-        return resp
+        return resp.json()
 
     def get_instructor(self):
         resp = self.do_post('get_instructor')
