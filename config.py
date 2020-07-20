@@ -1,17 +1,18 @@
 from stats.beta import BetaDistribution
+from lms.lms import Canvas
 
 import datetime
 import os
 
 
-class Config:
+class GenericConfig:
     ENV = 'DEV'
-    DB_ENDPOINT = None
+    DB_ENDPOINT = os.environ['DATABASE_URL']
     COURSE_SUMMARY_STAT = 'median'  # or 'mean'
     COMMIT_OUTLIERS_TO_DB = False
 
 
-class StEdwardsConfig(Config):
+class StEdwardsConfig(GenericConfig):
     # id in schools table in db
     SCHOOL_ID = 1
     # Canvas API endoint
@@ -27,9 +28,8 @@ class StEdwardsConfig(Config):
     SEMESTER = 'Spring 2020'
     # Email address to show in "from" field
     FROM_EMAIL = 'psavala@stedwards.edu'
-
-    # DB credentials
-    DB_ENDPOINT = os.environ['DATABASE_URL']
+    # LMS system
+    LMS = Canvas
 
     # Used for testing
     semester_first_sunday = datetime.datetime(2020, 1, 19)

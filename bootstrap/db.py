@@ -2,9 +2,9 @@ from logzero import logger
 import os
 
 
-def bootstrap(config, db):
+def bootstrap(db_endpoint, db):
     logger.info('Starting bootstrapping db...')
-    conn = db.create_connection(config.DB_ENDPOINT)
+    conn = db.create_connection(db_endpoint)
     cursor = db.create_cursor(conn)
 
     if os.environ.get('BOOTSTRAP_DB'):
@@ -14,7 +14,8 @@ def bootstrap(config, db):
                 name VARCHAR(256) NOT NULL,
                 city VARCHAR(128) NOT NULL,
                 state VARCHAR(2) NOT NULL,
-                api_url VARCHAR(256)
+                api_url VARCHAR(256),
+                config_class_name VARCHAR(256)
             );
         '''
         CREATE_COLLEGE_OF_TABLE = '''
@@ -93,8 +94,8 @@ def bootstrap(config, db):
         db.run_query(CREATE_OUTLIERS_TABLE, cursor)
 
         CREATE_INITIAL_SCHOOL = '''
-            INSERT INTO schools (id, name, city, state, api_url)
-            VALUES (1, 'ST EDWARDS UNIVERSITY', 'AUSTIN', 'TX', 'https://stedwards.instructure.com/');
+            INSERT INTO schools (id, name, city, state, api_url, config_class_name)
+            VALUES (1, 'ST EDWARDS UNIVERSITY', 'AUSTIN', 'TX', 'https://stedwards.instructure.com/', 'StEdwardsConfig');
         '''
         CREATE_INITIAL_NSCI = '''
                 INSERT INTO college_of (id, long_name, short_name, school_id)
