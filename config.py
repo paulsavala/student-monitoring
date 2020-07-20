@@ -1,7 +1,6 @@
 from stats.beta import BetaDistribution
 from lms.lms import Canvas
 
-import datetime
 import os
 
 

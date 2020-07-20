@@ -3,11 +3,11 @@ import os
 
 
 def bootstrap(db_endpoint, db):
-    logger.info('Starting bootstrapping db...')
     conn = db.create_connection(db_endpoint)
     cursor = db.create_cursor(conn)
 
     if os.environ.get('BOOTSTRAP_DB'):
+        logger.info('Bootstrapping database...')
         CREATE_SCHOOL_TABLE = '''
             CREATE TABLE IF NOT EXISTS schools (
                 id SERIAL PRIMARY KEY,

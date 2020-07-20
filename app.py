@@ -21,19 +21,19 @@ if __name__ == '__main__':
 
     # Bootstrap if needed and get the connection and a cursor
     conn, cursor = bootstrap(config.GenericConfig.DB_ENDPOINT, db)
+    logger.info('Connected to database')
     # Get all schools
     SCHOOL_QUERY = 'SELECT DISTINCT id FROM schools;'
     schools = db.run_query(SCHOOL_QUERY, cursor)
     for school_id in schools:
-        SCHOOL_API_QUERY = '''SELECT DISTINCT api_url, config_class_name FROM schools WHERE id = %s;'''
+        SCHOOL_API_QUERY = '''SELECT DISTINCT config_class_name FROM schools WHERE id = %s;'''
         params = (school_id['id'],)
         school_info = db.run_query(SCHOOL_API_QUERY, cursor, params)
         if len(school_info) > 1:
             logger.error(f'Multiple entries found for school with id {school_id["id"]}, using first')
         school_info = school_info[0]
         config = getattr(config, school_info['config_class_name'])
-        api_url = school_info['api_url']
-        logger.info('School api url retrieved')
+        logger.info('School config class retrieved')
 
         # Get the school LMS
         LmsClass = config.LMS
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         for i in instructors:
             # Connect to the instructors LMS using their API token
             lms_token = i['lms_token']
-            lms_obj = LmsClass(config.LMS_URL, lms_token, api_url)
+            lms_obj = LmsClass(lms_token, config.API_BASE_URL)
 
             # Create the instructor object from db info and grab all their courses from db
             instructor = Instructor(first_name=i['first_name'],

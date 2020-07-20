@@ -3,8 +3,7 @@ import json
 
 
 class GenericLMS:
-    def __init__(self, lms_url, lms_token, api_url):
-        self.lms_url = lms_url
+    def __init__(self, lms_token, api_url):
         self.lms_token = lms_token
         self.api_url = api_url
 
