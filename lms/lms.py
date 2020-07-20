@@ -87,7 +87,7 @@ class Canvas(GenericLMS):
         assert isinstance(course_lms_id, int) or isinstance(course_lms_id, str), 'course_lms_id must be an integer or string'
         assert isinstance(students, list), 'student_ids must be a list'
 
-        data = {'course_lms_id': course_lms_id, 'students': students}
+        data = {'course_lms_id': course_lms_id, 'students': [s.lms_id for s in students]}
         resp = self.do_post('get_course_grades', data=data)
         return resp
 
