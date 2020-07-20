@@ -52,12 +52,12 @@ if __name__ == '__main__':
                                 last_name=i['last_name'],
                                 email=i['email'],
                                 lms_id=i['lms_id'])
-        INSTRUCTOR_COURSES = f'''SELECT DISTINCT lms_id, name 
+        INSTRUCTOR_COURSES = f'''SELECT DISTINCT lms_id, short_name 
                                  FROM courses
                                  WHERE instructor_id = %s'''
         params = (i['id'],)
         instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor, params)
-        instructor.add_courses([Course(lms_id=c['canvas_id'], name=c['name']) for c in instructor_courses_dict])
+        instructor.add_courses([Course(lms_id=c['canvas_id'], short_name=c['short_name']) for c in instructor_courses_dict])
 
         for course in instructor.courses:
             # Get the students, enrollments, assigments, and grades for this course
