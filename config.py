@@ -18,7 +18,7 @@ class StEdwardsConfig(GenericConfig):
     # Canvas API endoint
     LMS_URL = 'https://stedwards.instructure.com/'
     # Lambda API abstraction layer endpoint
-    API_BASE_URL = 'https://ve9e8bak70.execute-api.us-east-1.amazonaws.com/default'
+    API_BASE_URL = 'https://student-monitoring-lms-api.herokuapp.com/v1.0'
     # Used to make CI
     DISTRIBUTION = BetaDistribution
     # How datetimes are stored
@@ -30,8 +30,3 @@ class StEdwardsConfig(GenericConfig):
     FROM_EMAIL = 'psavala@stedwards.edu'
     # LMS system
     LMS = Canvas
-
-    # Used for testing
-    semester_first_sunday = datetime.datetime(2020, 1, 19)
-    semester_last_sunday = datetime.datetime(2020, 5, 3)
-    REF_DATE = semester_last_sunday - datetime.timedelta(weeks=4)
