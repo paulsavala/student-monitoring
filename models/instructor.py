@@ -20,7 +20,7 @@ class Instructor:
         self.courses = remove_from_list(self.courses, courses)
 
     @staticmethod
-    def render_email(self, context_dict, env):
+    def render_email(context_dict, env):
         email_template = env.get_template('email/container.html')
         rendered_email = email_template.render(context_dict)
         return rendered_email

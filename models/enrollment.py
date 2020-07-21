@@ -36,6 +36,8 @@ class Enrollment:
     def form_ci(self, distribution, conf_level=0.1, default_left=0.7, default_right=1, save_ci=True, ref_date=None):
         d = distribution(default_left=default_left, default_right=default_right)
         all_grades = self.get_grades(current_week=False, ref_date=ref_date, scores_only=True)
+        if len(all_grades) == 0:
+            print(f'No grades found for student {self.student.name} in course {self.course.short_name}')
         d.fit(all_grades)
         left, right = d.conf_int(conf_level)
         if save_ci:
