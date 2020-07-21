@@ -112,10 +112,11 @@ if __name__ == '__main__':
                     student_grades = []
                     for assignment in assignments:
                         # Find the entry in grades_dict corresponding to this assignment
-                        assignment_score = [a for a in grades_dict.get(str(student.lms_id), [])
-                                            if str(a['lms_id']) == str(assignment.lms_id)]
+                        assignment_score = [s for s in grades_dict.get(str(student.lms_id), [])
+                                            if str(s['lms_id']) == str(assignment.lms_id)]
                         if assignment_score:
                             student_grades.append(Grade(student, course, assignment, assignment_score[0].get('score')))
+                    print(f'student {student.name} has {len(student_grades)} grades')
                     enrollment.add_grades(student_grades)
                     student.add_enrollments(enrollment)
                     if len(student.enrollments) == 0:

@@ -1,5 +1,5 @@
 from utils.models import add_to_list, remove_from_list
-from utils.email import send_email
+from utils.email import send_sg_email
 
 from datetime import date
 import datetime
@@ -30,6 +30,6 @@ class Instructor:
         week_start = (date.today() - datetime.timedelta(days=8)).strftime('%b %-d')
         week_end = (date.today() - datetime.timedelta(days=1)).strftime('%b %-d')
         subject = f'Student monitoring for {week_start} to {week_end}'
-        response_code, response_body, response_headers = send_email(from_email, to_email, subject, rendered_email)
+        response_code, response_body, response_headers = send_sg_email(from_email, to_email, subject, rendered_email)
         print(f'Email sent to {self.email}: Response = {response_code}')
         return response_code, response_body, response_headers
