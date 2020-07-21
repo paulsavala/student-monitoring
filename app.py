@@ -119,12 +119,13 @@ if __name__ == '__main__':
                 for student in course.students:
                     # Create CI's for each student -> floats
                     enrollment = student.get_enrollment_by_course(course)
-                    enrollment.form_ci(distribution=config.DISTRIBUTION)
 
                     # Look for new good/bad results -> Assignments
                     if ref_date is not None:
+                        enrollment.form_ci(ref_date=ref_date, distribution=config.DISTRIBUTION)
                         outlier_assignments = enrollment.get_outliers(ref_date=ref_date)
                     else:
+                        enrollment.form_ci(distribution=config.DISTRIBUTION)
                         outlier_assignments = enrollment.get_outliers()
 
                     # Create student summary -> list of Assignments
