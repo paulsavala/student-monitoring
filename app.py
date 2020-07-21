@@ -93,7 +93,7 @@ if __name__ == '__main__':
                                               course) for assignment in assignments_dict]
                 course.add_assignments(assignments)
 
-                # Get grades for all assignments
+                # Get grades for all assignments, arranged by student
                 grades_dict = lms_obj.get_course_grades(course.lms_id, students)
                 # Get overall grades for all students (cumulative grade)
                 current_scores_dict = lms_obj.get_current_scores(course.lms_id)
