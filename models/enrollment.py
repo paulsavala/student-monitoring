@@ -21,7 +21,6 @@ class Enrollment:
         self.grades = remove_from_list(self.grades, grades)
 
     def get_grades(self, current_week=True, ref_date=None, scores_only=False):
-        print(f'{len(self.grades)} total grades')
         if not current_week:
             if ref_date is None:
                 grades = self.grades
@@ -34,7 +33,6 @@ class Enrollment:
                       if (ref_date - g.assignment.due_date).days < 7 and g.assignment.due_date < ref_date]
         if scores_only:
             grades = [g.score for g in grades]
-        print(f'Returning {len(grades)} grades \n\n')
         return grades
 
     def form_ci(self, distribution, conf_level=0.1, default_left=0.7, default_right=1, save_ci=True, ref_date=None):
