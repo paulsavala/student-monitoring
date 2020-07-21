@@ -97,6 +97,7 @@ if __name__ == '__main__':
                 # Get grades for all assignments, arranged by student
                 grades_dict = lms_obj.get_course_grades(course.lms_id, students)
                 logger.info(f'{len(grades_dict)} assignment grades')
+                print(grades_dict)
                 # Get overall grades for all students (cumulative grade)
                 current_scores_dict = lms_obj.get_current_scores(course.lms_id)
                 logger.info(f'{len(current_scores_dict)} current scores')
@@ -109,8 +110,6 @@ if __name__ == '__main__':
                         # Find the entry in grades_dict corresponding to this assignment
                         assignment_score = [a for a in grades_dict.get(student.lms_id, [])
                                             if a['lms_id'] == assignment.lms_id]
-                        if len(assignment_score) == 0:
-                            logger.info(f"Can't find assignment for student {student.name}")
                         if assignment_score:
                             student_grades.append(Grade(student, course, assignment, assignment_score[0].get('score')))
                     enrollment.add_grades(student_grades)
