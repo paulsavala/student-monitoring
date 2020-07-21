@@ -103,7 +103,7 @@ if __name__ == '__main__':
                     student_grades = []
                     for assignment in assignments:
                         # Find the entry in grades_dict corresponding to this assignment
-                        assignment_score = [a for a in grades_dict.get(student) if a['lms_id'] == assignment.lms_id]
+                        assignment_score = [a for a in grades_dict.get(student.lms_id) if a['lms_id'] == assignment.lms_id]
                         if assignment_score:
                             student_grades.append(Grade(student, course, assignment, assignment_score[0].get('score')))
                     enrollment.add_grades(student_grades)
