@@ -26,6 +26,6 @@ class StEdwardsConfig(GenericConfig):
     # Used for getting current courses from LMS
     SEMESTER = 'Spring 2020'
     # Email address to show in "from" field
-    FROM_EMAIL = 'psavala@stedwards.edu'
+    FROM_EMAIL = 'weeklyupdate@lululearner.com'
     # LMS system
     LMS = Canvas

@@ -30,7 +30,7 @@ class Instructor:
         to_email = self.email
         week_start = (date.today() - datetime.timedelta(days=8)).strftime('%b %-d')
         week_end = (date.today() - datetime.timedelta(days=1)).strftime('%b %-d')
-        subject = f'Student monitoring for {week_start} to {week_end}'
+        subject = f'Grade report for {week_start} to {week_end}'
         response_code, response_body, response_headers = send_sg_email(from_email, to_email, subject, rendered_email)
         logger.info(f'Email sent to {self.email}: Response = {response_code}')
         return response_code, response_body, response_headers
