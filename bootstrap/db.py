@@ -32,7 +32,7 @@ def bootstrap(db_endpoint, db):
             CREATE TABLE IF NOT EXISTS departments (
                 id SERIAL PRIMARY KEY,
                 long_name VARCHAR(256) NOT NULL,
-                short_name VARCHAR(16) NOT NULL UNIQUE,
+                short_name VARCHAR(16) NOT NULL,
                 
                 school_id INTEGER NOT NULL,
                 college_of_id INTEGER NOT NULL,
@@ -165,19 +165,19 @@ def bootstrap(db_endpoint, db):
                                 '''
         CREATE_SOCI_DEPARTMENT = '''
                                     INSERT INTO departments (long_name, short_name, college_of_id, school_id)
-                                    VALUES ('Sociology and Social Work', '', 3, 1);
+                                    VALUES ('Sociology and Social Work', 'SSW', 3, 1);
                                 '''
         CREATE_HISTORY_DEPARTMENT = '''
                                     INSERT INTO departments (long_name, short_name, college_of_id, school_id)
-                                    VALUES ('History', '', 3, 1);
+                                    VALUES ('History', 'HIST', 3, 1);
                                 '''
         CREATE_POLISCI_DEPARTMENT = '''
                                     INSERT INTO departments (long_name, short_name, college_of_id, school_id)
-                                    VALUES ('Political Science, Global Studies, Environmental Science and Policy', '', 3, 1);
+                                    VALUES ('Political Science, Global Studies, Environmental Science and Policy', 'POLS', 3, 1);
                                 '''
         CREATE_PSYCH_DEPARTMENT = '''
                                     INSERT INTO departments (long_name, short_name, college_of_id, school_id)
-                                    VALUES ('Psychology and Behavioral Neuroscience', '', 3, 1);
+                                    VALUES ('Psychology and Behavioral Neuroscience', 'PSYC', 3, 1);
                                 '''
 
         # BUSINESS
