@@ -95,6 +95,11 @@ if __name__ == '__main__':
 
                 # Get grades for all assignments, arranged by student
                 grades_dict = lms_obj.get_course_grades(course.lms_id, students)
+                print('grades_dict')
+                print(grades_dict)
+                print('================')
+                print('assignments lms_id')
+                print([a.lms_id for a in assignments])
                 # Get overall grades for all students (cumulative grade)
                 current_scores_dict = lms_obj.get_current_scores(course.lms_id)
                 # Create an Enrollment object for each student with all of their assignments,
@@ -152,5 +157,5 @@ if __name__ == '__main__':
                             }
             jinja_env = prep_jinja()
             email = instructor.render_email(context_dict, jinja_env)
-            instructor.send_email(email)
+            instructor.send_email(from_email=config.FROM_EMAIL, rendered_email=email)
             logger.info(f'{len(instructor.courses)} courses processed for instructor {instructor.email}')
