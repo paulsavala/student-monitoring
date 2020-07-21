@@ -14,9 +14,9 @@ class Student:
         self.enrollments = remove_from_list(self.enrollments, enrollments)
 
     def get_enrollment_by_course(self, course):
-        if not self.enrollments:
-            return None
-        enrollment = [e for e in self.enrollments if e.course == course]
+        assert self.enrollments is not None, 'Student has no enrollments'
+
+        enrollment = [e for e in self.enrollments if e.course.lms_id == course.lms_id]
         assert len(enrollment) != 0, f'Student does not have an enrollment for course {course}'
         assert len(enrollment) == 1, f'Student has multiple enrollments for course {course}'
         return enrollment[0]

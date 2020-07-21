@@ -95,14 +95,6 @@ if __name__ == '__main__':
 
                 # Get grades for all assignments, arranged by student
                 grades_dict = lms_obj.get_course_grades(course.lms_id, students)
-                print('grades_dict')
-                print(grades_dict)
-                print('\n\n================\n\n')
-                print('assignments lms_id')
-                print([a.lms_id for a in assignments])
-                print('\n\n================\n\n')
-                print('student lms ids')
-                print([s.lms_id for s in students])
                 # Get overall grades for all students (cumulative grade)
                 current_scores_dict = lms_obj.get_current_scores(course.lms_id)
                 # Create an Enrollment object for each student with all of their assignments,
@@ -116,11 +108,8 @@ if __name__ == '__main__':
                                             if str(s['lms_id']) == str(assignment.lms_id)]
                         if assignment_score:
                             student_grades.append(Grade(student, course, assignment, assignment_score[0].get('score')))
-                    print(f'student {student.name} has {len(student_grades)} grades')
                     enrollment.add_grades(student_grades)
                     student.add_enrollments(enrollment)
-                    if len(student.enrollments) == 0:
-                        logger.info(f'{student.name} has no enrollments')
 
             # Context dictionaries are used by Jinja to create the emails
             course_context_dicts = []
