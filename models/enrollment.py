@@ -45,7 +45,7 @@ class Enrollment:
                 self.set_ci(left, right)
             return left, right
         else:
-            logger.info('Student has no grades for this time period, returning default CI')
+            logger.info(f'Student {self.student.name} has no grades for this time period, returning default CI')
             return default_left, default_right
 
     def set_ci(self, left, right):
