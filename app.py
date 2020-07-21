@@ -75,7 +75,7 @@ if __name__ == '__main__':
             instructor.add_courses([Course(lms_id=c['lms_id'], short_name=c['short_name']) for c in instructor_courses_dict])
 
             for course in instructor.courses:
-                print(course.short_name)
+                logger.info(f'Processing {course.short_name}...')
                 # Get the students, enrollments, assigments, and grades for this course
                 students_dict = lms_obj.get_students_in_course(course.lms_id)
                 students = [Student(name=student['name'], lms_id=student['lms_id']) for student in students_dict]
@@ -139,7 +139,6 @@ if __name__ == '__main__':
                 course_summary = {'summary_stat': summary_stat, 'summary_stat_value': summary_stat_value}
 
                 # Craft (email) card for this course
-                env = prep_jinja()
                 course_card = course.context_dict(course_outliers, course_summary)
                 course_context_dicts.append(course_card)
 
@@ -149,6 +148,7 @@ if __name__ == '__main__':
                             'current_date': datetime.datetime.now() - datetime.timedelta(days=1),
                             'week_start': datetime.datetime.now() - datetime.timedelta(days=8)
                             }
-            email = instructor.render_email(context_dict, env)
+            jinja_env = prep_jinja()
+            email = instructor.render_email(context_dict, jinja_env)
             instructor.send_email(email)
             logger.info(f'{len(instructor.courses)} courses processed for instructor {instructor.email}')
