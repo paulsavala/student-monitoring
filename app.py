@@ -69,7 +69,7 @@ if __name__ == '__main__':
                                     lms_id=i['lms_id'])
             INSTRUCTOR_COURSES = f'''SELECT DISTINCT lms_id, short_name 
                                      FROM courses
-                                     WHERE instructor_id = %s'''
+                                     WHERE instructor_id = %s AND is_monitored=TRUE'''
             params = (i['id'],)
             instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor, params)
             instructor.add_courses([Course(lms_id=c['lms_id'], short_name=c['short_name']) for c in instructor_courses_dict])
