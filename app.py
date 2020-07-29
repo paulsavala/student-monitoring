@@ -66,13 +66,16 @@ if __name__ == '__main__':
             instructor = Instructor(first_name=i['first_name'],
                                     last_name=i['last_name'],
                                     email=i['email'],
-                                    lms_id=i['lms_id'])
-            INSTRUCTOR_COURSES = f'''SELECT DISTINCT lms_id, short_name 
+                                    lms_id=i['lms_id'],
+                                    color_blind_mode=i['color_blind_mode'])
+            INSTRUCTOR_COURSES = f'''SELECT DISTINCT lms_id, short_name, alias
                                      FROM courses
                                      WHERE instructor_id = %s AND is_monitored=TRUE'''
             params = (i['id'],)
             instructor_courses_dict = db.run_query(INSTRUCTOR_COURSES, cursor, params)
-            instructor.add_courses([Course(lms_id=c['lms_id'], short_name=c['short_name']) for c in instructor_courses_dict])
+            instructor.add_courses([Course(lms_id=c['lms_id'],
+                                           short_name=c['short_name'],
+                                           alias=c['alias']) for c in instructor_courses_dict])
 
             for course in instructor.courses:
                 logger.info(f'Processing {course.short_name}...')

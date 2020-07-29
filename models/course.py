@@ -2,9 +2,10 @@ from utils.models import add_to_list, remove_from_list
 
 
 class Course:
-    def __init__(self, lms_id, short_name):
+    def __init__(self, lms_id, short_name, alias=None):
         self.lms_id = lms_id
         self.short_name = short_name
+        self.alias = alias
 
         self.students = None
         self.assignments = None

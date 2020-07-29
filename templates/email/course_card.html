@@ -3,12 +3,24 @@
     <tr>
         <td style="border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; width: 100%; margin: 0; padding: 20px;" align="left">
             <div>
-                <h5 class="text-center" style="margin-top: 0; margin-bottom: 0; font-weight: 500; color: inherit; vertical-align: baseline; font-size: 20px; line-height: 24px;" align="center"><strong>{{ course_context_dict.course.short_name }}</strong></h5>
+                {% if course_context_dict.course.alias is not none %}
+                    {% set course_title = course_context_dict.course.alias %}
+                {% else %}
+                    {% set course_title = course_context_dict.course.short_name %}
+                {% endif %}
+                <h5 class="text-center" style="margin-top: 0; margin-bottom: 0; font-weight: 500; color: inherit; vertical-align: baseline; font-size: 20px; line-height: 24px;" align="center"><strong>{{ course_title }}</strong></h5>
                 <table id="outlier_students" class="table table-striped" border="0" cellpadding="0" cellspacing="0" style="font-family: Helvetica, Arial, sans-serif; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 0px; border-collapse: collapse; width: 100%; max-width: 100%;" bgcolor="#ffffff">
                     <tbody>
                     {% for enrollment, grades in course_context_dict.course_outliers.items() %}
                         {% for grade in grades %}
-                            <tr style="color: #{{ '06bf00' if grade.score > enrollment.ci_right else "bf0000" }};">
+                            {% if instructor.color_blind_mode %}
+                                {% set high_color='#005ab5' %}
+                                {% set low_color='#dc3220' %}
+                            {% else %}
+                                {% set high_color='#06bf00' %}
+                                {% set low_color='#bf0000' %}
+                            {% endif %}
+                            <tr style="color: {{ high_color if grade.score > enrollment.ci_right else low_color }};">
                                 <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ enrollment.student.name }}</td>
                                 <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ grade.assignment.assignment_name }}</td>
                                 <td class="text-right" style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="right" valign="top">{{ (100*grade.score) | round | int }}% (Expected: {{ (100*enrollment.ci_left) | round | int }}% to {{ (100*enrollment.ci_right) | round | int }}%)</td>

@@ -7,12 +7,13 @@ from logzero import logger
 
 
 class Instructor:
-    def __init__(self, first_name, last_name, email, lms_id, courses=None):
+    def __init__(self, first_name, last_name, email, lms_id, courses=None, color_blind_mode=False):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.lms_id = lms_id
         self.courses = courses
+        self.color_blind_mode = color_blind_mode
 
     def add_courses(self, courses):
         self.courses = add_to_list(self.courses, courses)
