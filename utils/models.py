@@ -5,6 +5,8 @@ def add_to_list(orig_list, items):
         items = [items]
     if orig_list is None:
         orig_list = []
+    if not isinstance(orig_list, list):
+        orig_list = [orig_list]
     orig_list += items
     return orig_list
 

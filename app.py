@@ -32,11 +32,11 @@ if __name__ == '__main__':
         if len(school_info) > 1:
             logger.error(f'Multiple entries found for school with id {school_id["id"]}, using first')
         school_info = school_info[0]
-        config = getattr(config, school_info['config_class_name'])
+        school_config = getattr(config, school_info['config_class_name'])
         logger.info('School config class retrieved')
 
         # Get the school LMS
-        LmsClass = config.LMS
+        LmsClass = school_config.LMS
 
         # Used for testing
         ref_date = os.environ.get('REF_DATE')
@@ -49,18 +49,25 @@ if __name__ == '__main__':
                 ref_date = None
 
         # Get the instructors who have active course instances
-        INSTRUCTORS_QUERY = '''SELECT DISTINCT i.* 
-                                FROM instructors i JOIN schools s on i.school_id=s.id
-                                JOIN courses c on c.instructor_id=i.id
-                                WHERE s.id = %s AND c.is_monitored=TRUE;'''
-        params = (config.SCHOOL_ID,)
+        # If in testing mode, only grab admins
+        if school_config.TESTING:
+            INSTRUCTORS_QUERY = '''SELECT DISTINCT i.* 
+                                    FROM instructors i JOIN schools s on i.school_id=s.id
+                                    JOIN courses c on c.instructor_id=i.id
+                                    WHERE s.id=%s AND c.is_monitored=TRUE;'''
+        else:
+            INSTRUCTORS_QUERY = '''SELECT DISTINCT i.* 
+                                    FROM instructors i JOIN schools s on i.school_id=s.id
+                                    JOIN courses c on c.instructor_id=i.id
+                                    WHERE s.id=%s AND c.is_monitored=TRUE AND i.is_admin=TRUE;'''
+        params = (school_config.SCHOOL_ID,)
         instructors = db.run_query(INSTRUCTORS_QUERY, cursor, params)
 
         logger.info(f'{len(instructors)} instructors found in db with active course instance')
         for i in instructors:
             # Connect to the instructors LMS using their API token
             lms_token = i['lms_token']
-            lms_obj = LmsClass(lms_token, config.API_BASE_URL)
+            lms_obj = LmsClass(lms_token, school_config.API_BASE_URL)
 
             # Create the instructor object from db info and grab all their courses from db
             instructor = Instructor(first_name=i['first_name'],
@@ -93,7 +100,8 @@ if __name__ == '__main__':
                     assignments = [Assignment(assignment['lms_id'],
                                               assignment['name'],
                                               assignment['due_date'],
-                                              course) for assignment in assignments_dict]
+                                              course,
+                                              datetime_format=school_config.DATETIME_FORMAT) for assignment in assignments_dict]
                 course.add_assignments(assignments)
 
                 # Get grades for all assignments, arranged by student
@@ -125,20 +133,20 @@ if __name__ == '__main__':
 
                     # Look for new good/bad results -> Assignments
                     if ref_date is not None:
-                        enrollment.form_ci(ref_date=ref_date, distribution=config.DISTRIBUTION)
+                        enrollment.form_ci(ref_date=ref_date, distribution=school_config.DISTRIBUTION)
                         outlier_assignments = enrollment.get_outliers(ref_date=ref_date)
                     else:
-                        enrollment.form_ci(distribution=config.DISTRIBUTION)
+                        enrollment.form_ci(distribution=school_config.DISTRIBUTION)
                         outlier_assignments = enrollment.get_outliers()
 
                     # Create student summary -> list of Assignments
                     if outlier_assignments:
                         course_outliers[enrollment] = outlier_assignments
-                        if config.COMMIT_OUTLIERS_TO_DB:
+                        if school_config.COMMIT_OUTLIERS_TO_DB:
                             enrollment.commit_outliers_to_db(outlier_assignments, cursor, conn)
 
                 # Create class summary (mean/median class grade)
-                summary_stat = config.COURSE_SUMMARY_STAT
+                summary_stat = school_config.COURSE_SUMMARY_STAT
                 summary_stat_value = lms_obj.get_course_grade_summary(course.lms_id, summary_stat)
                 course_summary = {'summary_stat': summary_stat, 'summary_stat_value': summary_stat_value}
 
@@ -154,5 +162,5 @@ if __name__ == '__main__':
                             }
             jinja_env = prep_jinja()
             email = instructor.render_email(context_dict, jinja_env)
-            instructor.send_email(from_email=config.FROM_EMAIL, rendered_email=email)
+            instructor.send_email(from_email=school_config.FROM_EMAIL, rendered_email=email)
             logger.info(f'{len(instructor.courses)} courses processed for instructor {instructor.email}')

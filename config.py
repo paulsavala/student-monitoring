@@ -4,11 +4,15 @@ from lms.lms import Canvas
 import os
 
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+
 class GenericConfig:
     ENV = 'DEV'
     DB_ENDPOINT = os.environ['DATABASE_URL']
     COURSE_SUMMARY_STAT = 'median'  # or 'mean'
     COMMIT_OUTLIERS_TO_DB = False
+    TESTING = False
 
 
 class StEdwardsConfig(GenericConfig):
@@ -29,3 +33,8 @@ class StEdwardsConfig(GenericConfig):
     FROM_EMAIL = 'weeklyupdate@lululearner.com'
     # LMS system
     LMS = Canvas
+
+
+class StEdwardsTestConfig(StEdwardsConfig):
+    TESTING = True
+    DB_ENDPOINT = 'sqlite://' + os.path.join(basedir, 'app.db')
