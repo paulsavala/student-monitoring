@@ -9,7 +9,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class GenericConfig:
     ENV = 'DEV'
-    DB_ENDPOINT = os.environ['DATABASE_URL']
+    DB_ENDPOINT = os.environ.get('DATABASE_URL') or 'sqlite://' + os.path.join(basedir, 'app.db')
     COURSE_SUMMARY_STAT = 'median'  # or 'mean'
     COMMIT_OUTLIERS_TO_DB = False
     TESTING = False
@@ -37,4 +37,3 @@ class StEdwardsConfig(GenericConfig):
 
 class StEdwardsTestConfig(StEdwardsConfig):
     TESTING = True
-    DB_ENDPOINT = 'sqlite://' + os.path.join(basedir, 'app.db')
