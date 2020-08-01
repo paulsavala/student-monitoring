@@ -15,11 +15,11 @@ class Instructor:
         self.courses = courses
         self.color_blind_mode = color_blind_mode
 
-    def add_courses(self, courses):
-        self.courses = add_to_list(self.courses, courses)
+    def add_courses(self, courses, allow_duplicates=False, unique_attr=None):
+        self.courses = add_to_list(self.courses, courses, allow_duplicates, unique_attr)
 
-    def remove_courses(self, courses):
-        self.courses = remove_from_list(self.courses, courses)
+    def remove_courses(self, courses, allow_duplicates=False, unique_attr=None):
+        self.courses = remove_from_list(self.courses, courses, allow_duplicates, unique_attr)
 
     @staticmethod
     def render_email(context_dict, env):

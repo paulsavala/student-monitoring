@@ -67,7 +67,6 @@ class UtilsModelsCase(unittest.TestCase):
         expected10 = [1, 2, 3]
         self.assertEqual(result10, expected10)
 
-    
     def test_remove_from_list(self):
         # Simple case
         result1 = models.remove_from_list([1, 2, 3, 4, 5, 6], [4, 5, 6])
@@ -205,17 +204,21 @@ class CourseModelCase(unittest.TestCase):
         self.assertEqual(len(self.course1.students), 3)
 
     def test_remove_students(self):
+        # Add single student
+        self.course1.add_students(Student('test1', 1))
+        self.assertEqual(len(self.course1.students), 1)
+
+        # Add multiple students
+        self.course1.add_students([Student('test2', 2), Student('test3', 3)])
+        self.assertEqual(len(self.course1.students), 3)
+
         # Remove a single student
-        self.course1.remove_students(Student('test1', 1))
+        self.course1.remove_students(Student('test1', 1), unique_attr='lms_id')
         self.assertEqual(len(self.course1.students), 2)
 
         # Remove multiple students
-        self.course1.remove_students([Student('test1', 1), Student('test2', 2)])
+        self.course1.remove_students([Student('test2', 2), Student('test3', 3)], unique_attr='lms_id')
         self.assertEqual(len(self.course1.students), 0)
-
-        # Remove a non-existent student
-        self.course1.remove_students(Student('test1', 3))
-        self.assertEqual(len(self.course1.students), 2)
 
     def test_add_assignments(self):
         # Add a single assignment
@@ -233,21 +236,20 @@ class CourseModelCase(unittest.TestCase):
         # Add assignments (so that you can remove them for testing)
         datetime_format = '%Y-%m-%dT%H:%M:%SZ'
         self.course1.add_assignments([Assignment(1, 'hw1', '2018-01-02T23:59:00Z', None, datetime_format),
-                                     Assignment(2, 'hw2', '2018-02-03T23:59:00Z', None, datetime_format)])
-        self.assertEqual(len(self.course1.assignments), 2)
+                                     Assignment(2, 'hw2', '2018-02-03T23:59:00Z', None, datetime_format),
+                                      Assignment(3, 'hw3', '2018-02-03T23:59:00Z', None, datetime_format)])
+        self.assertEqual(len(self.course1.assignments), 3)
 
         # Remove a single assignment
-        self.course1.remove_assignments(Assignment(1, 'hw1', '2018-01-02T23:59:00Z', None, datetime_format))
-        self.assertEqual(len(self.course1.assignments), 1)
+        self.course1.remove_assignments(Assignment(1, 'hw1', '2018-01-02T23:59:00Z', None, datetime_format),
+                                        unique_attr='lms_id')
+        self.assertEqual(len(self.course1.assignments), 2)
 
         # Remove multiple assignments
-        self.course1.remove_assignments([Assignment(1, 'hw1', '2018-01-02T23:59:00Z', None, datetime_format),
-                                        Assignment(2, 'hw2', '2018-02-03T23:59:00Z', None, datetime_format)])
+        self.course1.remove_assignments([Assignment(2, 'hw2', '2018-01-02T23:59:00Z', None, datetime_format),
+                                        Assignment(3, 'hw3', '2018-02-03T23:59:00Z', None, datetime_format)],
+                                        unique_attr='lms_id')
         self.assertEqual(len(self.course1.assignments), 0)
-
-        # Remove a non-existent assignment
-        self.course1.remove_assignments(Assignment(3, 'hw3', '2018-02-03T23:59:00Z', None, datetime_format))
-        self.assertEqual(len(self.course1.assignments), 2)
 
     
     def test_create_context_dict(self):
@@ -256,17 +258,38 @@ class CourseModelCase(unittest.TestCase):
 
 class EnrollmentModelCase(unittest.TestCase):
     def setUp(self):
-        pass
+        student = Student('test', 1)
+        course = Course(1, 'test_course')
+        datetime_format = '%Y-%m-%dT%H:%M:%SZ'
+        assignment1 = Assignment(1, 'hw1', '2018-01-02T23:59:00Z', course, datetime_format)
+        assignment2 = Assignment(2, 'hw2', '2018-01-02T23:59:00Z', course, datetime_format)
+        assignment3 = Assignment(3, 'hw3', '2018-01-02T23:59:00Z', course, datetime_format)
+        assignment4 = Assignment(4, 'hw4', '2018-01-02T23:59:00Z', course, datetime_format)
+        self.grade1 = Grade(student, course, assignment1, 0.85)
+        self.grade2 = Grade(student, course, assignment2, 0.75)
+        self.grade3 = Grade(student, course, assignment3, 0.65)
+        self.grade4 = Grade(student, course, assignment4, 0.55)
 
-    
+        self.enrollment = Enrollment(student, course, [self.grade1], 0.75)
+
     def test_add_grades(self):
-        pass
+        # Add single grade
+        self.enrollment.add_grades(self.grade2)
+        self.assertEqual(len(self.enrollment.grades), 2)
 
-    
+        # Add multiple grades
+        self.enrollment.add_grades([self.grade3, self.grade4])
+        self.assertEqual(len(self.enrollment.grades), 4)
+
     def test_remove_grades(self):
-        pass
+        # Remove a single grade
+        self.enrollment.remove_grades(self.grade4, unique_attr='assignment')
+        self.assertEqual(len(self.enrollment.grades), 3)
 
-    
+        # Remove multiple grades
+        self.enrollment.remove_grades([self.grade2, self.grade3], unique_attr='assignment')
+        self.assertEqual(len(self.enrollment.grades), 1)
+
     def test_get_grades(self):
         pass
 
@@ -289,30 +312,62 @@ class EnrollmentModelCase(unittest.TestCase):
 
 class GradeModelCase(unittest.TestCase):
     def setUp(self):
-        pass
-
+        student = Student('test', 1)
+        course = Course(1, 'test_course')
+        datetime_format = '%Y-%m-%dT%H:%M:%SZ'
+        assignment = Assignment(1, 'hw1', '2018-01-02T23:59:00Z', course, datetime_format)
+        self.grade = Grade(student, course, assignment, 0.85)
     
     def test_is_outlier(self):
-        pass
+        # Not an outlier
+        result = self.grade.is_outlier(0.5, 1)
+        self.assertFalse(result)
+
+        # Low outlier
+        result = self.grade.is_outlier(0.9, 1)
+        self.assertTrue(result)
+
+        # High outlier
+        result = self.grade.is_outlier(0.5, 0.6)
+        self.assertTrue(result)
 
 
 class InstructorModelCase(unittest.TestCase):
     def setUp(self):
-        pass
-
+        self.instructor = Instructor('john', 'smith', 'jsmith@stedwards.edu', 123)
+        self.course1 = Course(1, 'test_course1')
+        self.course2 = Course(2, 'test_course2')
+        self.course3 = Course(3, 'test_course3')
     
     def test_add_courses(self):
-        pass
+        # Add a single course
+        self.instructor.add_courses(self.course1)
+        self.assertEqual(len(self.instructor.courses), 1)
 
+        # Add multiple courses
+        self.instructor.add_courses([self.course2, self.course3])
+        self.assertEqual(len(self.instructor.courses), 3)
     
     def test_remove_courses(self):
-        pass
+        # Add a single course
+        self.instructor.add_courses(self.course1)
+        self.assertEqual(len(self.instructor.courses), 1)
 
+        # Add multiple courses
+        self.instructor.add_courses([self.course2, self.course3])
+        self.assertEqual(len(self.instructor.courses), 3)
+        
+        # Remove a single course
+        self.instructor.remove_courses(self.course1, unique_attr='lms_id')
+        self.assertEqual(len(self.instructor.courses), 2)
+
+        # Remove multiple courses
+        self.instructor.remove_courses([self.course2, self.course3], unique_attr='lms_id')
+        self.assertEqual(len(self.instructor.courses), 0)
     
     def test_render_email(self):
         pass
 
-    
     def test_send_email(self):
         pass
 

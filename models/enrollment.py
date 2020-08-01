@@ -14,11 +14,11 @@ class Enrollment:
         self.ci_left = ci_left
         self.ci_right = ci_right
 
-    def add_grades(self, grades):
-        self.grades = add_to_list(self.grades, grades)
+    def add_grades(self, grades, allow_duplicates=False, unique_attr=None):
+        self.grades = add_to_list(self.grades, grades, allow_duplicates, unique_attr)
 
-    def remove_grades(self, grades):
-        self.grades = remove_from_list(self.grades, grades)
+    def remove_grades(self, grades, allow_duplicates=False, unique_attr=None):
+        self.grades = remove_from_list(self.grades, grades, allow_duplicates, unique_attr)
 
     def get_grades(self, current_week=True, ref_date=None, scores_only=False):
         if not current_week:

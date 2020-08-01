@@ -7,11 +7,11 @@ class Student:
         self.lms_id = lms_id
         self.enrollments = enrollments
 
-    def add_enrollments(self, enrollments):
-        self.enrollments = add_to_list(self.enrollments, enrollments)
+    def add_enrollments(self, enrollments, allow_duplicates=False, unique_attr=None):
+        self.enrollments = add_to_list(self.enrollments, enrollments, allow_duplicates, unique_attr)
 
-    def remove_enrollments(self, enrollments):
-        self.enrollments = remove_from_list(self.enrollments, enrollments)
+    def remove_enrollments(self, enrollments, allow_duplicates=False, unique_attr=None):
+        self.enrollments = remove_from_list(self.enrollments, enrollments, allow_duplicates, unique_attr)
 
     def get_enrollment_by_course(self, course):
         assert self.enrollments is not None, 'Student has no enrollments'
