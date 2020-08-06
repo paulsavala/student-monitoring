@@ -251,7 +251,6 @@ class CourseModelCase(unittest.TestCase):
                                         unique_attr='lms_id')
         self.assertEqual(len(self.course1.assignments), 0)
 
-    
     def test_create_context_dict(self):
         pass
 
@@ -293,19 +292,15 @@ class EnrollmentModelCase(unittest.TestCase):
     def test_get_grades(self):
         pass
 
-    
     def test_form_ci(self):
         pass
 
-    
     def test_set_ci(self):
         pass
 
-    
     def test_get_outliers(self):
         pass
 
-    
     def test_commit_outliers_to_db(self):
         pass
 
@@ -373,29 +368,56 @@ class InstructorModelCase(unittest.TestCase):
 
 
 class StudentModelCase(unittest.TestCase):
-    
     def setUp(self):
-        pass
-
+        self.student = Student('test1', 123)
+        self.course1 = Course(1, 'test_course1')
+        self.course2 = Course(2, 'test_course2')
+        self.course3 = Course(3, 'test_course3')
+        self.course4 = Course(4, 'test_course4')
+        self.enrollment1 = Enrollment(self.student, self.course1)
+        self.enrollment2 = Enrollment(self.student, self.course2)
+        self.enrollment3 = Enrollment(self.student, self.course3)
     
     def test_add_enrollments(self):
-        pass
+        # Add a single enrollment
+        self.student.add_enrollments(self.enrollment1)
+        self.assertEqual(len(self.student.enrollments), 1)
 
+        # Add multiple enrollments
+        self.student.add_enrollments([self.enrollment2, self.enrollment3])
+        self.assertEqual(len(self.student.enrollments), 3)
     
     def test_remove_enrollments(self):
-        pass
+        # Remove a single enrollment
+        self.student.remove_enrollments(self.enrollment1)
+        self.assertEqual(len(self.student.enrollments), 2)
 
-    
+        # Remove multiple enrollments
+        self.student.remove_enrollments([self.enrollment2, self.enrollment3])
+        self.assertEqual(len(self.student.enrollments), 0)
+
     def test_get_enrollments_by_course(self):
-        pass
+        # Add the enrollments back
+        self.test_add_enrollments()
+
+        # Course with enrollments
+        enrollments = self.student.get_enrollment_by_course(self.course1)
+        self.assertEqual(enrollments.course.lms_id, 1)
+
+        # Course with no enrollments (show throw an error)
+        try:
+            self.student.get_enrollment_by_course(self.course4)
+            # Really just checking if it goes past the previous line without throwing an exception
+            self.assertTrue(False)
+        except AssertionError:
+            # It's supposed to throw an error, so affirming that it did
+            self.assertTrue(True)
 
 
 class AppCase(unittest.TestCase):
-    
     def setUp(self):
         pass
 
-    
     def tearDown(self):
         pass
 

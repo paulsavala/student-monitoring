@@ -8,6 +8,7 @@ def add_to_list(orig_list, items, allow_duplicates=False, unique_attr=None):
     if not isinstance(orig_list, list):
         orig_list = [orig_list]
     orig_list += items
+
     return orig_list
 
 
@@ -29,4 +30,6 @@ def remove_from_list(orig_list, items, allow_duplicates=False, unique_attr=None,
         while item_identifier in orig_list_identifiers:
             del orig_list_identifiers[item_identifier]
 
-    return [orig_list_identifiers[x] for x in orig_list_identifiers]
+    results = [orig_list_identifiers[x] for x in orig_list_identifiers]
+
+    return results
