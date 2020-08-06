@@ -30,15 +30,15 @@ if __name__ == '__main__':
         logger.info(f'Processing school {school_id}')
         if os.environ.get('TESTING'):
             logger.info('====== TESTING MODE ========')
-            SCHOOL_API_QUERY = '''SELECT DISTINCT config_test_class_name FROM schools WHERE id = %s;'''
+            SCHOOL_API_QUERY = '''SELECT DISTINCT config_test_class_name AS "config_class" FROM schools WHERE id = %s;'''
         else:
-            SCHOOL_API_QUERY = '''SELECT DISTINCT config_class_name FROM schools WHERE id = %s;'''
+            SCHOOL_API_QUERY = '''SELECT DISTINCT config_class_name AS "config_class" FROM schools WHERE id = %s;'''
         params = (school_id['id'],)
         school_info = db.run_query(SCHOOL_API_QUERY, cursor, params)
         if len(school_info) > 1:
             logger.error(f'Multiple entries found for school with id {school_id["id"]}, using first')
         school_info = school_info[0]
-        school_config = getattr(config, school_info['config_class_name'])
+        school_config = getattr(config, school_info['config_class'])
         logger.info('School config class retrieved')
 
         # Get the school LMS
