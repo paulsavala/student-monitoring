@@ -26,8 +26,8 @@ class BetaDistribution:
         right = beta.ppf(1 - conf_level / 2, self.a, self.b)
 
         # Used because the ppf will never return 1, only 0.9999...
-        left = np.round(left, 1)
-        right = np.round(right, 1)
+        left = np.round(left, 2)
+        right = np.round(right, 2)
         if np.isnan(left):
             left = self.default_left
         if np.isnan(right):
