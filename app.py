@@ -25,8 +25,14 @@ if __name__ == '__main__':
     # Get all schools
     SCHOOL_QUERY = 'SELECT DISTINCT id FROM schools;'
     schools = db.run_query(SCHOOL_QUERY, cursor)
+    logger.info(f'{len(schools)} schools retrieved')
     for school_id in schools:
-        SCHOOL_API_QUERY = '''SELECT DISTINCT config_class_name FROM schools WHERE id = %s;'''
+        logger.info(f'Processing school {school_id}')
+        if os.environ.get('TESTING'):
+            logger.info('====== TESTING MODE ========')
+            SCHOOL_API_QUERY = '''SELECT DISTINCT config_test_class_name FROM schools WHERE id = %s;'''
+        else:
+            SCHOOL_API_QUERY = '''SELECT DISTINCT config_class_name FROM schools WHERE id = %s;'''
         params = (school_id['id'],)
         school_info = db.run_query(SCHOOL_API_QUERY, cursor, params)
         if len(school_info) > 1:
@@ -51,6 +57,7 @@ if __name__ == '__main__':
         # Get the instructors who have active course instances
         # If in testing mode, only grab admins
         if school_config.TESTING:
+            logger.info('Testing mode, only sending emails to admins')
             INSTRUCTORS_QUERY = '''SELECT DISTINCT i.* 
                                     FROM instructors i JOIN schools s on i.school_id=s.id
                                     JOIN courses c on c.instructor_id=i.id
@@ -65,6 +72,7 @@ if __name__ == '__main__':
 
         logger.info(f'{len(instructors)} instructors found in db with active course instance')
         for i in instructors:
+            logger.info(f"Processing instructor {i['first_name']} {i['last_name']}")
             # Connect to the instructors LMS using their API token
             lms_token = i['lms_token']
             lms_obj = LmsClass(lms_token, school_config.API_BASE_URL)
@@ -85,7 +93,7 @@ if __name__ == '__main__':
                                            alias=c['alias']) for c in instructor_courses_dict])
 
             for course in instructor.courses:
-                logger.info(f'Processing {course.short_name}...')
+                logger.info(f'Getting grades/assignments for {course.short_name}...')
                 # Get the students, enrollments, assigments, and grades for this course
                 students_dict = lms_obj.get_students_in_course(course.lms_id)
                 students = [Student(name=student['name'], lms_id=student['lms_id']) for student in students_dict]
@@ -124,8 +132,8 @@ if __name__ == '__main__':
 
             # Context dictionaries are used by Jinja to create the emails
             course_context_dicts = []
-            # Used for testing since there are no current assignments
             for course in instructor.courses:
+                logger.info(f'Finding outliers for {course.short_name}...')
                 course_outliers = defaultdict(list)
                 for student in course.students:
                     # Create CI's for each student -> floats
