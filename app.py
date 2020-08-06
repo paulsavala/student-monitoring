@@ -96,6 +96,8 @@ if __name__ == '__main__':
                 logger.info(f'Getting grades/assignments for {course.short_name}...')
                 # Get the students, enrollments, assigments, and grades for this course
                 students_dict = lms_obj.get_students_in_course(course.lms_id)
+                if students_dict is None:
+                    continue
                 students = [Student(name=student['name'], lms_id=student['lms_id']) for student in students_dict]
                 course.add_students(students)
 

@@ -57,7 +57,10 @@ class Canvas(GenericLMS):
             resp = requests.post(url, params=params, json=data)
         else:
             resp = requests.post(url, json=data)
-        return resp.json()
+        if resp is not None:
+            return resp.json()
+        else:
+            return None
 
     def get_instructor(self):
         resp = self.do_post('get_instructor')
