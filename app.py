@@ -61,12 +61,12 @@ if __name__ == '__main__':
             INSTRUCTORS_QUERY = '''SELECT DISTINCT i.* 
                                     FROM instructors i JOIN schools s on i.school_id=s.id
                                     JOIN courses c on c.instructor_id=i.id
-                                    WHERE s.id=%s AND c.is_monitored=TRUE;'''
+                                    WHERE s.id=%s AND c.is_monitored=TRUE AND i.is_admin=TRUE;'''
         else:
             INSTRUCTORS_QUERY = '''SELECT DISTINCT i.* 
                                     FROM instructors i JOIN schools s on i.school_id=s.id
                                     JOIN courses c on c.instructor_id=i.id
-                                    WHERE s.id=%s AND c.is_monitored=TRUE AND i.is_admin=TRUE;'''
+                                    WHERE s.id=%s AND c.is_monitored=TRUE;'''
         params = (school_config.SCHOOL_ID,)
         instructors = db.run_query(INSTRUCTORS_QUERY, cursor, params)
 
