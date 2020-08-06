@@ -23,7 +23,7 @@
                             <tr style="color: {{ high_color if grade.score > enrollment.ci_right else low_color }};">
                                 <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ enrollment.student.name }}</td>
                                 <td style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="left" valign="top">{{ grade.assignment.assignment_name }}</td>
-                                <td class="text-right" style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="right" valign="top">{{ (100*grade.score) | round | int }}% (Expected: {{ (100*enrollment.ci_left) | round | int }}% to {{ (100*enrollment.ci_right) | round | int }}%)</td>
+                                <td class="text-right" style="border-top-width: 0; border-spacing: 0px; border-collapse: collapse; line-height: 24px; font-size: 16px; border-top-color: #e9ecef; border-top-style: solid; margin: 0; padding: 12px;" align="right" valign="top">{{ (100*grade.score) | round | int }}% (Typically: {{ (100*enrollment.ci_left) | round | int }}% to {{ (100*enrollment.ci_right) | round | int }}%)</td>
                             </tr>
                         {% endfor %}
                     {% endfor %}
