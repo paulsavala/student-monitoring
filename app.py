@@ -120,7 +120,7 @@ if __name__ == '__main__':
                 current_scores_dict = lms_obj.get_current_scores(course.lms_id)
                 # Create an Enrollment object for each student with all of their assignments,
                 # along with their current grade
-                for student in students:
+                for student in course.students:
                     enrollment = Enrollment(student, course, current_score=current_scores_dict.get(student.lms_id))
                     student_grades = []
                     for assignment in assignments:
