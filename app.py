@@ -120,40 +120,42 @@ if __name__ == '__main__':
                 current_scores_dict = lms_obj.get_current_scores(course.lms_id)
                 # Create an Enrollment object for each student with all of their assignments,
                 # along with their current grade
-                for student in course.students:
-                    enrollment = Enrollment(student, course, current_score=current_scores_dict.get(student.lms_id))
-                    student_grades = []
-                    for assignment in assignments:
-                        # Find the entry in grades_dict corresponding to this assignment
-                        assignment_score = [s for s in grades_dict.get(str(student.lms_id), [])
-                                            if str(s['lms_id']) == str(assignment.lms_id)]
-                        if assignment_score:
-                            student_grades.append(Grade(student, course, assignment, assignment_score[0].get('score')))
-                    enrollment.add_grades(student_grades)
-                    student.add_enrollments(enrollment)
+                if students is not None:
+                    for student in students:
+                        enrollment = Enrollment(student, course, current_score=current_scores_dict.get(student.lms_id))
+                        student_grades = []
+                        for assignment in assignments:
+                            # Find the entry in grades_dict corresponding to this assignment
+                            assignment_score = [s for s in grades_dict.get(str(student.lms_id), [])
+                                                if str(s['lms_id']) == str(assignment.lms_id)]
+                            if assignment_score:
+                                student_grades.append(Grade(student, course, assignment, assignment_score[0].get('score')))
+                        enrollment.add_grades(student_grades)
+                        student.add_enrollments(enrollment)
 
             # Context dictionaries are used by Jinja to create the emails
             course_context_dicts = []
             for course in instructor.courses:
                 logger.info(f'Finding outliers for {course.short_name}...')
                 course_outliers = defaultdict(list)
-                for student in course.students:
-                    # Create CI's for each student -> floats
-                    enrollment = student.get_enrollment_by_course(course)
+                if course.students is not None:
+                    for student in course.students:
+                        # Create CI's for each student -> floats
+                        enrollment = student.get_enrollment_by_course(course)
 
-                    # Look for new good/bad results -> Assignments
-                    if ref_date is not None:
-                        enrollment.form_ci(ref_date=ref_date, distribution=school_config.DISTRIBUTION)
-                        outlier_assignments = enrollment.get_outliers(ref_date=ref_date)
-                    else:
-                        enrollment.form_ci(distribution=school_config.DISTRIBUTION)
-                        outlier_assignments = enrollment.get_outliers()
+                        # Look for new good/bad results -> Assignments
+                        if ref_date is not None:
+                            enrollment.form_ci(ref_date=ref_date, distribution=school_config.DISTRIBUTION)
+                            outlier_assignments = enrollment.get_outliers(ref_date=ref_date)
+                        else:
+                            enrollment.form_ci(distribution=school_config.DISTRIBUTION)
+                            outlier_assignments = enrollment.get_outliers()
 
-                    # Create student summary -> list of Assignments
-                    if outlier_assignments:
-                        course_outliers[enrollment] = outlier_assignments
-                        if school_config.COMMIT_OUTLIERS_TO_DB:
-                            enrollment.commit_outliers_to_db(outlier_assignments, cursor, conn)
+                        # Create student summary -> list of Assignments
+                        if outlier_assignments:
+                            course_outliers[enrollment] = outlier_assignments
+                            if school_config.COMMIT_OUTLIERS_TO_DB:
+                                enrollment.commit_outliers_to_db(outlier_assignments, cursor, conn)
 
                 # Create class summary (mean/median class grade)
                 summary_stat = school_config.COURSE_SUMMARY_STAT
