@@ -28,7 +28,7 @@ class StEdwardsConfig(GenericConfig):
     DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
     # COMMIT_OUTLIERS_TO_DB = True
     # Used for getting current courses from LMS
-    SEMESTER = 'Spring 2020'
+    SEMESTER = 'Fall 2020'
     # Email address to show in "from" field
     FROM_EMAIL = 'weeklyupdate@lululearner.com'
     # LMS system
